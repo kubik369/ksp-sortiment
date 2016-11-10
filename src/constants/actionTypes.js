@@ -1,0 +1,6 @@
+export const INCREMENT_PRODUCT = 'INCREMENT_PRODUCT';
+export const DECREMENT_PRODUCT = 'DECREMENT_PRODUCT';
+
+export const SET_USER = 'SET_USER';
+
+export const GO_TO_STEP = 'GO_TO_STEP';
