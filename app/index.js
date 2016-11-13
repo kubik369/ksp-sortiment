@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import {Provider} from 'react-redux';
 
 import AppContainer from './containers/App';
-import {store} from './store'
+import {store} from './store';
 
 const body = document.getElementById('root');
 

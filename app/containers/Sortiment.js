@@ -3,19 +3,19 @@ import {connect} from 'react-redux';
 import {get} from 'lodash';
 
 import {Sortiment} from '../components/Sortiment';
-import {increment, decrement} from '../actions/actions'
+import {fetchProducts} from '../actions/actions';
 
 function mapStateToProps(state) {
   return {
-    cart: get(state, 'cart', {}),
+    products: get(state, 'products', {}),
   };
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({
-    increment,
-    decrement,
-  }, dispatch)
+  return bindActionCreators(
+    {fetchProducts},
+    dispatch
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Sortiment);
