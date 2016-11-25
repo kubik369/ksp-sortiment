@@ -11,6 +11,7 @@ import {
   registerUser,
   addCredit,
   buy,
+  addStock,
 } from './routes';
 import config from '../config.js';
 import webpackConfig from '../webpack.config.js'
@@ -49,6 +50,7 @@ export function runServer() {
   app.post('/register', registerUser);
   app.post('/credit', addCredit);
   app.post('/buy', buy);
+  app.post('/addStock', addStock);
 
   app.use('/images', express.static('images'));
 

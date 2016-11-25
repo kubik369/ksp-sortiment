@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+
 import ProductC from '../containers/Product';
 
 export class Sortiment extends Component {

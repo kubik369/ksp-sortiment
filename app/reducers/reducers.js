@@ -8,7 +8,15 @@ import {
   RECEIVED_USERS,
   FETCHING_PRODUCTS,
   RECEIVED_PRODUCTS,
-  CHANGE_USERNAME,
+  START_ADDING_NEW_STOCK,
+  STOP_ADDING_NEW_STOCK,
+  CHANGE_NEW_STOCK_ID,
+  CHANGE_NEW_STOCK_SEARCH,
+  CHANGE_NEW_STOCK_QUANTITY,
+  CHANGE_NEW_STOCK_PRICE,
+  SEARCH_USERNAME,
+  LOG_IN,
+  LOG_OUT,
   CHANGE_BALANCE,
 } from '../constants/actionTypes';
 
@@ -38,10 +46,32 @@ export default function rootReducer(state = {}, action) {
         currentStep: action.step,
       };
 
-    case CHANGE_USERNAME:
+    case SEARCH_USERNAME:
       return {
         ...state,
-        username: action.username,
+        login: {
+          ...state.login,
+          search: action.username,
+        },
+      };
+
+    case LOG_IN:
+      return {
+        ...state,
+        login: {
+          loggedIn: true,
+          username: action.username,
+        },
+      };
+
+    case LOG_OUT:
+      return {
+        ...state,
+        login: {
+          loggedIn: false,
+          search: '',
+          username: '',
+        },
       };
 
     case CHANGE_BALANCE:
@@ -58,7 +88,6 @@ export default function rootReducer(state = {}, action) {
           fetching: true,
         }
       };
-      return state;
 
     case RECEIVED_USERS:
       return {
@@ -77,7 +106,6 @@ export default function rootReducer(state = {}, action) {
           fetching: true,
         }
       };
-      return state;
 
     case RECEIVED_PRODUCTS:
       return {
@@ -92,6 +120,60 @@ export default function rootReducer(state = {}, action) {
         products: {
           fetching: false,
           data: action.products,
+        }
+      };
+
+    case START_ADDING_NEW_STOCK:
+      return {
+        ...state,
+        newStock: {
+          ...state.newStock,
+          active: true,
+        },
+      };
+
+    case STOP_ADDING_NEW_STOCK:
+      return {
+        ...state,
+        newStock: {
+          ...state.newStock,
+          active: false,
+        },
+      };
+
+    case CHANGE_NEW_STOCK_ID:
+      return {
+        ...state,
+        newStock: {
+          ...state.newStock,
+          id: action.id,
+        }
+      };
+
+    case CHANGE_NEW_STOCK_SEARCH:
+      return {
+        ...state,
+        newStock: {
+          ...state.newStock,
+          search: action.text,
+        }
+      };
+
+    case CHANGE_NEW_STOCK_QUANTITY:
+      return {
+        ...state,
+        newStock: {
+          ...state.newStock,
+          quantity: action.quantity,
+        }
+      };
+
+    case CHANGE_NEW_STOCK_PRICE:
+      return {
+        ...state,
+        newStock: {
+          ...state.newStock,
+          price: action.price,
         }
       };
 

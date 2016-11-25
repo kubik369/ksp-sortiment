@@ -5,7 +5,6 @@ CREATE TABLE products (
   id    INTEGER      PRIMARY KEY,
   label VARCHAR(20)  NOT NULL,
   price REAL         NOT NULL,
-  image VARCHAR(200) NULL, -- this will be the filename, because images will be locally stored
   stock INTEGER      NULL
 );
 

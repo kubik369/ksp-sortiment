@@ -16,7 +16,7 @@ export class ShoppingProcess extends Component {
       [steps.welcome]: <WelcomeC />,
       [steps.login]: <LoginC />,
       [steps.registration]: <RegistrationC />,
-      [steps.dashboard]: <DashboardC />,
+      [steps.dashboard]: <p>Logged in</p>,
       [steps.success]: <p>Transaction successful, we hope you come again</p>,
       [steps.error]: <p>Something went wrong, please try purchasing again</p>,
     }

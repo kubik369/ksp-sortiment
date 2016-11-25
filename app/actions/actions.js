@@ -6,10 +6,17 @@ import {
   GO_TO_STEP,
   FETCHING_USERS,
   RECEIVED_USERS,
-  FETCH_PRODUCTS,
   FETCHING_PRODUCTS,
   RECEIVED_PRODUCTS,
-  CHANGE_USERNAME,
+  START_ADDING_NEW_STOCK,
+  STOP_ADDING_NEW_STOCK,
+  CHANGE_NEW_STOCK_ID,
+  CHANGE_NEW_STOCK_SEARCH,
+  CHANGE_NEW_STOCK_QUANTITY,
+  CHANGE_NEW_STOCK_PRICE,
+  SEARCH_USERNAME,
+  LOG_IN,
+  LOG_OUT,
   CHANGE_BALANCE,
 } from '../constants/actionTypes';
 
@@ -34,11 +41,24 @@ export function goToStep(step) {
   };
 }
 
-export function changeUsername(username) {
+export function searchUsername(username) {
   return {
-    type: CHANGE_USERNAME,
+    type: SEARCH_USERNAME,
     username: username.trim(),
   };
+}
+
+export function logIn(username) {
+  return {
+    type: LOG_IN,
+    username: username.trim(),
+  }
+}
+
+export function logOut() {
+  return {
+    type: LOG_OUT,
+  }
 }
 
 export function changeBalance(balance) {
@@ -87,5 +107,45 @@ export function receiveProducts(products) {
   return {
     type: RECEIVED_PRODUCTS,
     products: products.reduce((res, item) => ({...res, [item.id]: item}), {}),
+  }
+}
+
+export function startAddingNewStock() {
+  return {
+    type: START_ADDING_NEW_STOCK,
+  };
+}
+
+export function stopAddingNewStock() {
+  return {
+    type: STOP_ADDING_NEW_STOCK,
+  };
+}
+
+export function changeNewStockId(id) {
+  return {
+    type: CHANGE_NEW_STOCK_ID,
+    id: id,
+  }
+}
+
+export function changeNewStockSearch(text) {
+  return {
+    type: CHANGE_NEW_STOCK_SEARCH,
+    text: text,
+  }
+}
+
+export function changeNewStockQuantity(quantity) {
+  return {
+    type: CHANGE_NEW_STOCK_QUANTITY,
+    quantity: quantity,
+  }
+}
+
+export function changeNewStockPrice(price) {
+  return {
+    type: CHANGE_NEW_STOCK_PRICE,
+    price: price,
   }
 }

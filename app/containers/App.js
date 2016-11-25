@@ -5,7 +5,8 @@ import {App} from '../components/App';
 
 function mapStateToProps(state) {
   return {
-    currentStep: get(state, 'currentStep'),
+    addingStock: get(state, 'newStock.active', false),
+    loggedIn: get(state, 'login.loggedIn', false),
   };
 }
 

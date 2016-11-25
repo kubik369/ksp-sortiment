@@ -7,13 +7,22 @@ import {
 import thunk from 'redux-thunk';
 
 import rootReducer from '../reducers/reducers';
-import {processSteps} from '../constants/enums/steps';
 
 const initialState = {
-  username: '',
+  login: {
+    loggedIn: false,
+    search: '',
+    username: '',
+  },
   balance: '',
-  currentStep: processSteps.welcome,
   cart: {},
+  newStock: {
+    active: false,
+    id: '',
+    search: '',
+    quantity: 1,
+    price: 0,
+  },
   users: {
     fetching: false,
     data: {},

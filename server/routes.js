@@ -1,5 +1,6 @@
 import db from 'sqlite';
 import Promise from 'bluebird';
+import fs from 'fs';
 
 export async function getProducts(req, res) {
   try {
@@ -108,4 +109,20 @@ export async function buy(req, res) {
   }).catch(() => {
     res.status(500).send();
   });
+}
+
+export async function addStock(req, res) {
+  const {id, quantity, price} = req.body;
+  console.log(req.body.image);
+  fs.writeFile("arghhhh.jpg", new Buffer(req.body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64'), (err) => console.log(err));
+  db.get(
+    'SELECT * FROM products WHERE id=$id', {$id: id}
+  ).then((row) => {
+    console.log(row);
+  }).catch((err) => {
+    console.log('Error during re-stocking', err);
+    res.status(500).send();
+  })
+
+  console.log('addStock', id, quantity, price);
 }
