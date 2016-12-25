@@ -40,8 +40,24 @@ export class NewStock extends Component {
   addStock = (e) => {
     e.preventDefault();
     const {id, quantity, price} = this.props.newStock;
-    const reader = new FileReader();
-    const file = e.target.image.files[0];
+    const {products} = this.props;
+    console.log(e.target.values);
+    let data = new FormData(e.target);
+    let config = {
+      onUploadProgress: (progressEvent) => {
+        let percentCompleted = progressEvent.loaded / progressEvent.total;
+      }
+    };
+
+    axios
+        .post('/addstock', data, config)
+        .then(() => {
+          console.log(`Restocked ${quantity} of ${products[id].label} with price ${price}`);
+          this.productSearchText('');
+        }).catch((err) => {
+          console.log('Error during re-stock:', err);
+        });
+    /*const file = e.target.image.files[0];
 
     reader.onload = (upload) => {
       axios
@@ -53,9 +69,7 @@ export class NewStock extends Component {
         }).catch((err) => {
           console.log('Error during re-stock:', err);
         });
-    };
-
-    reader.readAsDataURL(file);
+    };*/
   }
 
   getNewPrice = (oldPrice, oldStock, newPrice, newStock) => {

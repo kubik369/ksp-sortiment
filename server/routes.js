@@ -113,7 +113,8 @@ export async function buy(req, res) {
 
 export async function addStock(req, res) {
   const {id, quantity, price} = req.body;
-  console.log(req.body.image);
+  console.log(req.body);
+/*
   fs.writeFile("arghhhh.jpg", new Buffer(req.body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64'), (err) => console.log(err));
   db.get(
     'SELECT * FROM products WHERE id=$id', {$id: id}
@@ -123,6 +124,6 @@ export async function addStock(req, res) {
     console.log('Error during re-stocking', err);
     res.status(500).send();
   })
-
+*/
   console.log('addStock', id, quantity, price);
 }

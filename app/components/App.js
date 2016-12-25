@@ -6,6 +6,8 @@ import CheckoutC from '../containers/Checkout';
 import LoginC from '../containers/Login';
 import NewStockC from '../containers/NewStock';
 
+import './App.css';
+
 export class App extends Component {
   render() {
     const {addingStock, loggedIn} = this.props;
@@ -13,7 +15,7 @@ export class App extends Component {
     return (
       <Container>
         <Row>
-          <h1>Tu raz bude ceeeellyyyy sortiment</h1>
+          <h1 styleName="title">Tu raz bude ceeeellyyyy sortiment</h1>
         </Row>
         <Row>
           <Col lg={2}>
