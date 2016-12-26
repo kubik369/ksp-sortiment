@@ -1,11 +1,12 @@
 {
   "name": "ksp-sortiment",
   "version": "0.0.1",
-  "description": "Sortiment for KSP T2 room",
+  "description": "Sortiment for the KSP T2 room",
   "scripts": {
-    "start": "node index.js",
-    "lint": "eslint app",
-    "build": "babel server -d build -s"
+    "build": "babel server -d build -s",
+    "start": "npm run build && node index.js",
+    "dev": "npm run build && DEV=1 node index.js",
+    "lint": "eslint app"
   },
   "author": "Jakub Šimo",
   "license": "MIT",

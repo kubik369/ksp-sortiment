@@ -1,7 +1,5 @@
 import React, {Component} from 'react';
 
-import AddCreditC from '../containers/AddCredit';
-
 export class Login extends Component {
   componentWillMount = () => this.props.fetchUsers()
 
@@ -46,7 +44,6 @@ export class Login extends Component {
         <div>
           <p>Logged in as: {username}</p>
           <button onClick={() => logOut()}>Logout</button>
-          <AddCreditC />
           <button onClick={() => startAddingNewStock()}>Add Stock</button>
         </div>
       }

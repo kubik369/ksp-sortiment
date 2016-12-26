@@ -26,7 +26,11 @@ export function runServer() {
     const compiler = webpack(webpackConfig);
 
     app.use(require('webpack-dev-middleware')(compiler, {
-      publicPath: webpackConfig.output.publicPath
+      publicPath: webpackConfig.output.publicPath,
+      stats: {
+        colors: true,
+        chunks: false,
+      }
     }));
     app.use(require('webpack-hot-middleware')(compiler));
   }
