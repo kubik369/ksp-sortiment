@@ -4,7 +4,8 @@
   "description": "Sortiment for the KSP T2 room",
   "scripts": {
     "build": "babel server -d build -s",
-    "start": "npm run build && node index.js",
+    "build-production": "npm run build && webpack -p",
+    "start": "node index.js",
     "dev": "npm run build && DEV=1 node index.js",
     "lint": "eslint app"
   },
