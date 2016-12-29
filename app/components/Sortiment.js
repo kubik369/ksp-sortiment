@@ -15,7 +15,7 @@ export class Sortiment extends Component {
     );
 
     return (
-      <Grid>
+      <Grid fluid>
         <Row>
           <Col lg={9} md={9} sm={9}
             style={{

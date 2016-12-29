@@ -25,7 +25,7 @@ export class App extends Component {
     };
 
     return (
-      <Grid style={{height: '100%', width: '100%', margin: '0'}}>
+      <Grid fluid style={{height: '100%', margin: '0'}}>
         <Row style={{height: '100%'}}>
           <Col lg={2} md={2} sm={2} style={{height: '100%'}}>
             <SidebarC />
