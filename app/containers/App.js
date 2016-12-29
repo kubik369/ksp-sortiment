@@ -7,6 +7,7 @@ function mapStateToProps(state) {
   return {
     addingStock: get(state, 'newStock.active', false),
     loggedIn: get(state, 'login.loggedIn', false),
+    currentPage: get(state, 'currentPage', 0),
   };
 }
 

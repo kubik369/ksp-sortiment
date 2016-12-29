@@ -1,6 +1,7 @@
 import db from 'sqlite';
 import Promise from 'bluebird';
 import fs from 'fs';
+import moment from 'moment';
 
 export async function getProducts(req, res) {
   try {
@@ -28,8 +29,8 @@ export function registerUser(req, res) {
     {$username: username, $balance: balance}
   ).then(() => {
     return db.run(
-      'INSERT INTO logs(user_id, balance_change, info) VALUES($user, $change, $info)',
-      {$user: username, $change: balance, $info: 'registration'}
+      'INSERT INTO logs(timestamp, user_id, balance_change, info) VALUES($ts, $user, $change, $info)',
+      {$ts: moment().toISOString(), $user: username, $change: balance, $info: 'registration'}
     );
   }).then(() => {
     console.log(`Registered user ${username} with initial balance of ${balance}`);
@@ -48,8 +49,8 @@ export function addCredit(req, res) {
     {$credit: credit, $username: username}
   ).then(() => {
     return db.run(
-      'INSERT INTO logs(user_id, balance_change, info) VALUES($user, $change, $info)',
-      {$user: username, $change: credit, $info: 'credit'}
+      'INSERT INTO logs(timestamp, user_id, balance_change, info) VALUES($ts, $user, $change, $info)',
+      {$ts: moment().toISOString(), $user: username, $change: credit, $info: 'credit'}
     );
   }).then(() => {
     console.log('success')
@@ -95,8 +96,9 @@ export async function buy(req, res) {
     );
   }).then(() => {
     return db.run(
-      'INSERT INTO logs(user_id, balance_change, info) VALUES($user, $debit, $info)',
+      'INSERT INTO logs(timestamp, user_id, balance_change, info) VALUES($ts, $user, $debit, $info)',
       {
+        $ts: moment().toISOString(),
         $user: username,
         $debit: -total,
         $info: Object.keys(cart).map(
@@ -111,19 +113,77 @@ export async function buy(req, res) {
   });
 }
 
+function getNewPrice(oldPrice, oldStock, newPrice, newStock) {
+  newPrice = parseFloat(newPrice) || 0;
+  newStock = parseInt(newStock, 10) || 0;
+  const price = ((oldPrice * oldStock) + (newPrice * newStock)) / (oldStock + newStock);
+  return (Math.ceil(price * 20) / 20).toFixed(2);
+}
+
 export async function addStock(req, res) {
-  const {id, quantity, price} = req.body;
-  console.log(req.body);
-/*
-  fs.writeFile("arghhhh.jpg", new Buffer(req.body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64'), (err) => console.log(err));
-  db.get(
-    'SELECT * FROM products WHERE id=$id', {$id: id}
-  ).then((row) => {
-    console.log(row);
-  }).catch((err) => {
-    console.log('Error during re-stocking', err);
-    res.status(500).send();
-  })
-*/
-  console.log('addStock', id, quantity, price);
+  const {username, label, quantity, price, uploadImage} = req.body;
+  
+  if (uploadImage) {
+    fs.writeFile(
+      `./images/${label}.jpg`,
+      new Buffer(req.body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64'),
+      (err) => console.log(err)
+    );
+  }
+
+  const product = await db.get('SELECT price, stock FROM products WHERE label=$label', {$label: label});
+
+  if (product) {
+    const newPrice = getNewPrice(product.price, product.stock, price, quantity);
+    
+    db
+      .run(
+        'UPDATE products SET stock = stock + $newStock, price=$newPrice WHERE label=$label;',
+        {$newStock: quantity, $newPrice: newPrice, $label: label}
+      )
+      .then(() => {
+        return db.run(
+          'INSERT INTO logs(timestamp, user_id, info) VALUES($ts, $user, $info)',
+          {
+            $ts: moment().toISOString(),
+            $user: username,
+            $info: `stock;${label};${price};${quantity}`,
+          }
+        )
+      })
+      .then(() => {
+        res.status(200).send();
+      })
+      .catch((err) => {
+        console.log('Error during re-stocking', err);
+        res.status(500).send();
+      });
+  } else {
+    db
+      .run(
+        'INSERT INTO products(label, price, stock) VALUES ($label, $price, $stock)',
+        {
+          $label: label,
+          $price: price,
+          $stock: quantity,
+        }
+      )
+      .then(() => {
+        return db.run(
+          'INSERT INTO logs(timestamp, user_id, info) VALUES($ts, $user, $info)',
+          {
+            $ts: moment().toISOString(),
+            $user: username,
+            $info: `stock;${label};${price};${quantity}`,
+          }
+        )
+      })
+      .then(() => {
+        res.status(200).send();
+      })
+      .catch((err) => {
+        console.log('Error during re-stocking', err);
+        res.status(500).send();
+      });
+  }
 }

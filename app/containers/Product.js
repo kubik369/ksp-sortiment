@@ -3,7 +3,7 @@ import {connect} from 'react-redux';
 import {get} from 'lodash';
 
 import {Product} from '../components/Product';
-import {addToCart, removeFromCart} from '../actions/actions';
+import {addToCart} from '../actions/actions';
 
 function mapStateToProps(state, props) {
   return {
@@ -13,10 +13,7 @@ function mapStateToProps(state, props) {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {addToCart, removeFromCart},
-    dispatch
-  );
+  return bindActionCreators({addToCart}, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Product);

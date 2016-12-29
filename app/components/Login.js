@@ -1,4 +1,7 @@
 import React, {Component} from 'react';
+import {Button} from 'react-bootstrap';
+
+import './Login.css';
 
 export class Login extends Component {
   componentWillMount = () => this.props.fetchUsers()
@@ -14,37 +17,38 @@ export class Login extends Component {
       .slice(0, 9)
       .map(
         (user, i) =>
-          (<li
+          (<Button
             key={i}
+            bsStyle={'info'}
             onClick={() => logIn(user.username)}
-          >{user.username}</li>)
+            block
+          >{user.username}</Button>)
       );
   }
 
   render() {
-    const {loggedIn, search, username, searchUsername, fetching, logOut,
-           startAddingNewStock} = this.props;
+    const {loggedIn, search, username, balance,
+      searchUsername, fetching} = this.props;
 
-    return (<div>
+    return (<div styleName={'login'}>
       {!loggedIn &&
         <form>
           <input
             type={'text'}
             name={'username'}
             value={search}
-            placeholder={'Your username comes here'}
+            placeholder={'Username'}
             autoComplete={'off'}
             onChange={(e) => searchUsername(e.target.value)}
           />
-          {!fetching && <ul>{this.filterUsers()}</ul>}
+          {!fetching && this.filterUsers()}
           {fetching && <p>Loading</p>}
         </form>
       }
       {loggedIn &&
         <div>
-          <p>Logged in as: {username}</p>
-          <button onClick={() => logOut()}>Logout</button>
-          <button onClick={() => startAddingNewStock()}>Add Stock</button>
+          Prihlásený: {username}
+          <p>Zostatok na účte: {balance.toFixed(2)}€</p>
         </div>
       }
     </div>);

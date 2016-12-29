@@ -2,7 +2,7 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import {get} from 'lodash';
 
-import {startAddingNewStock, searchUsername, logIn, logOut, fetchUsers} from '../actions/actions';
+import {startAddingNewStock, searchUsername, logIn, fetchUsers} from '../actions/actions';
 import {Login} from '../components/Login';
 
 function mapStateToProps(state, props) {
@@ -11,6 +11,7 @@ function mapStateToProps(state, props) {
     loggedIn: get(state, 'login.loggedIn', false),
     search: get(state, 'login.search', ''),
     username: get(state, 'login.username', ''),
+    balance: get(state, `users.data[${get(state, 'login.username', '')}].balance`, 0),
     fetching: get(state, 'users.fetching', false),
   };
 };
@@ -20,7 +21,6 @@ function mapDispatchToProps(dispatch) {
     {
       searchUsername,
       logIn,
-      logOut,
       fetchUsers,
       startAddingNewStock,
     },

@@ -8,12 +8,13 @@ import {
   changeNewStockSearch,
   changeNewStockQuantity,
   changeNewStockPrice,
+  changeNewStockImageCheckbox,
 } from '../actions/actions';
-import {NewStock} from '../components/NewStock';
+import {AddStock} from '../components/AddStock';
 
 function mapStateToProps(state, props) {
   return {
-    username: get(state, 'username', 'No user selected'),
+    username: get(state, 'login.username', 'No user selected'),
     products: get(state, 'products.data', []),
     fetchingProducts: get(state, 'products.fetching', true),
     newStock: get(state, 'newStock', {}),
@@ -28,9 +29,10 @@ function mapDispatchToProps(dispatch) {
       changeNewStockSearch,
       changeNewStockQuantity,
       changeNewStockPrice,
+      changeNewStockImageCheckbox,
     },
     dispatch
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(NewStock);
+export default connect(mapStateToProps, mapDispatchToProps)(AddStock);

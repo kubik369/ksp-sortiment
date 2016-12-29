@@ -16,8 +16,9 @@ CREATE TABLE users (
 
 CREATE TABLE logs (
   id             INTEGER     PRIMARY KEY,
+  timestamp      TEXT        NOT NULL,
   user_id        VARCHAR(20) NOT NULL,
-  balance_change REAL        NOT NULL,
+  balance_change REAL        NULL,
   info           TEXT        NULL,
   FOREIGN KEY(user_id) REFERENCES users(id)
 );

@@ -1,24 +1,18 @@
 import React, {Component} from 'react';
-
-import {processSteps} from '../constants/enums/steps';
+import {Grid, Row, Col} from 'react-bootstrap';
 
 export class Welcome extends Component {
 
   render() {
-    const {goToStep, changeUsername} = this.props;
 
-    return (<div>
-      <p>Welcome</p>
-      <button onClick={() => {
-          changeUsername('');
-          goToStep(processSteps.login);
-        }
-      }>
-        Go To Login
-      </button>
-      <button onClick={() => goToStep(processSteps.registration)}>
-        Go To Registration
-      </button>
-    </div>);
+    return (
+      <Grid>
+        <Row>
+          <Col lg={12} md={12} sm={12} style={{height: '100%'}}>
+            Welcome
+          </Col>
+        </Row>
+      </Grid>
+    );
   }
 }

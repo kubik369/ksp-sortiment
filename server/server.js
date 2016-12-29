@@ -2,7 +2,6 @@ import express from 'express';
 import Promise from 'bluebird';
 import db from 'sqlite';
 import webpack from 'webpack';
-import path from 'path';
 import bodyParser from 'body-parser';
 
 import {
@@ -30,7 +29,7 @@ export function runServer() {
       stats: {
         colors: true,
         chunks: false,
-      }
+      },
     }));
     app.use(require('webpack-hot-middleware')(compiler));
   }
@@ -40,7 +39,15 @@ export function runServer() {
     <html>
       <head>
         <title>Sortiment</title>
+        <link rel="stylesheet" href="/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/css/bootstrap-theme.min.css">
       </head>
+      <style>
+        html, body, #root {
+          height: 100%;
+          margin: 0 0 0 0;
+        }
+      </style>
       <body>
         <div id='root'>
         </div>
@@ -57,6 +64,8 @@ export function runServer() {
   app.post('/addStock', addStock);
 
   app.use('/images', express.static('images'));
+  app.use('/css', express.static('css'));
+  app.use('/static', express.static('static'));
 
   // redirect everything else to /
   app.get('*', (req, res) => res.redirect('/'));
@@ -64,10 +73,9 @@ export function runServer() {
   Promise.resolve()
     .then(() => db.open(`./${config.database}`, {Promise}))
     .then(() => db.migrate())
-    .catch(err => console.error(err.stack))
+    .catch((err) => console.error(err.stack))
     .finally(() => {
-        console.log(`Server running on localhost:${config.port}`);
-        app.listen(config.port);
-      }
-    );
+      console.log(`Server running on localhost:${config.port}`); // eslint-disable-line no-console
+      app.listen(config.port);
+    });
 }

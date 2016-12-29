@@ -3,7 +3,7 @@ import axios from 'axios';
 import {
   ADD_TO_CART,
   REMOVE_FROM_CART,
-  GO_TO_STEP,
+  GO_TO_PAGE,
   FETCHING_USERS,
   RECEIVED_USERS,
   FETCHING_PRODUCTS,
@@ -14,10 +14,13 @@ import {
   CHANGE_NEW_STOCK_SEARCH,
   CHANGE_NEW_STOCK_QUANTITY,
   CHANGE_NEW_STOCK_PRICE,
+  CHANGE_NEW_STOCK_IMAGE_CHECKBOX,
   SEARCH_USERNAME,
   LOG_IN,
   LOG_OUT,
   CHANGE_BALANCE,
+  REGISTRATION_CHANGE_USERNAME,
+  REGISTRATION_CHANGE_BALANCE,
 } from '../constants/actionTypes';
 
 export function addToCart(product) {
@@ -34,10 +37,10 @@ export function removeFromCart(product) {
   };
 }
 
-export function goToStep(step) {
+export function goToPage(page) {
   return {
-    type: GO_TO_STEP,
-    step: step,
+    type: GO_TO_PAGE,
+    page: page,
   };
 }
 
@@ -48,17 +51,31 @@ export function searchUsername(username) {
   };
 }
 
+export function changeRegistrationUsername(username) {
+  return {
+    type: REGISTRATION_CHANGE_USERNAME,
+    username: username.trim(),
+  };
+}
+
+export function changeRegistrationBalance(balance) {
+  return {
+    type: REGISTRATION_CHANGE_BALANCE,
+    balance: balance,
+  };
+}
+
 export function logIn(username) {
   return {
     type: LOG_IN,
     username: username.trim(),
-  }
+  };
 }
 
 export function logOut() {
   return {
     type: LOG_OUT,
-  }
+  };
 }
 
 export function changeBalance(balance) {
@@ -79,14 +96,14 @@ export function fetchUsers() {
 export function fetchingUsers() {
   return {
     type: FETCHING_USERS,
-  }
+  };
 }
 
 export function receiveUsers(users) {
   return {
     type: RECEIVED_USERS,
     users: users.reduce((res, item) => ({...res, [item.username]: item}), {}),
-  }
+  };
 }
 
 export function fetchProducts() {
@@ -100,14 +117,14 @@ export function fetchProducts() {
 export function fetchingProducts() {
   return {
     type: FETCHING_PRODUCTS,
-  }
+  };
 }
 
 export function receiveProducts(products) {
   return {
     type: RECEIVED_PRODUCTS,
     products: products.reduce((res, item) => ({...res, [item.id]: item}), {}),
-  }
+  };
 }
 
 export function startAddingNewStock() {
@@ -126,26 +143,33 @@ export function changeNewStockId(id) {
   return {
     type: CHANGE_NEW_STOCK_ID,
     id: id,
-  }
+  };
 }
 
 export function changeNewStockSearch(text) {
   return {
     type: CHANGE_NEW_STOCK_SEARCH,
     text: text,
-  }
+  };
 }
 
 export function changeNewStockQuantity(quantity) {
   return {
     type: CHANGE_NEW_STOCK_QUANTITY,
     quantity: quantity,
-  }
+  };
 }
 
 export function changeNewStockPrice(price) {
   return {
     type: CHANGE_NEW_STOCK_PRICE,
     price: price,
-  }
+  };
+}
+
+export function changeNewStockImageCheckbox(checkbox) {
+  return {
+    type: CHANGE_NEW_STOCK_IMAGE_CHECKBOX,
+    checkbox: checkbox,
+  };
 }

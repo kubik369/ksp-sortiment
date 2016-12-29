@@ -1,6 +1,8 @@
 import React, {Component} from 'react';
+import {Grid, Row, Col, Panel} from 'react-bootstrap';
 
 import ProductC from '../containers/Product';
+import CheckoutC from '../containers/Checkout';
 
 export class Sortiment extends Component {
   componentWillMount = () => {
@@ -9,13 +11,21 @@ export class Sortiment extends Component {
 
   render() {
     const products = Object.keys(this.props.products.data).map(
-      (key) => <ProductC key={key} id={key}/>
+      (key) => this.props.products.data[key].stock > 0 && <Col lg={4} sm={4} key={key}><ProductC id={key} /></Col>
     );
 
     return (
-      <div id="sortiment" style={{backgroundColor: 'green'}}>
-        {products}
-      </div>
+      <Grid>
+        <Row>
+          <Col lg={9} md={9} sm={9}
+            style={{
+              maxHeight: '600px',
+              overflowY: 'scroll',
+            }}
+            ><Panel>{products}</Panel></Col>
+          <Col lg={3} md={3} sm={3}><CheckoutC /></Col>
+        </Row>
+      </Grid>
     );
   }
 }

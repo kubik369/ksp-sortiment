@@ -2,11 +2,11 @@ import {
   createStore,
   compose,
   applyMiddleware,
-  combineReducers,
 } from 'redux';
 import thunk from 'redux-thunk';
 
 import rootReducer from '../reducers/reducers';
+import {pages} from '../constants/enums/pages';
 
 const initialState = {
   login: {
@@ -14,6 +14,7 @@ const initialState = {
     search: '',
     username: '',
   },
+  currentPage: pages.welcome,
   balance: '',
   cart: {},
   newStock: {
@@ -22,6 +23,11 @@ const initialState = {
     search: '',
     quantity: 1,
     price: 0,
+    uploadImage: false,
+  },
+  registration: {
+    username: '',
+    balance: 0,
   },
   users: {
     fetching: false,

@@ -1,0 +1,30 @@
+.product {
+    background-color: green;
+    border: 1px solid black;
+    border-radius: 10px;
+    margin: 5px;
+}
+
+.image {
+    display: block;
+    margin-top: 5px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 100px;
+    max-height: 100px;
+    cursor: pointer;
+}
+
+.label {
+    text-align: center;
+    font-size: 1.25em;
+}
+
+.price {
+    text-align: center;
+    font-size: 1.25em;
+}
+
+.stock {
+    text-align: center;
+}

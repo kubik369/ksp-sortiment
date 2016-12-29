@@ -1,27 +1,27 @@
 import React, {Component} from 'react';
 import axios from 'axios';
 
-import {processSteps} from '../constants/enums/steps';
-
 export class Registration extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const username = e.target.username.value.trim();
-    const balance = e.target.balance.value;
+    const {username, balance, logIn} = this.props;
 
     axios
-      .post(
-        '/register', {username: username, balance: balance}
-      ).then((res) => {
-        this.props.goToStep(processSteps.dashboard);
-      }).catch(
-        (err) => console.log(`Registration failed: ${err}`)
+      .post('/register', {username: username, balance: balance})
+      .then((res) => logIn(username))
+      .catch(
+        (err) => console.error(`Registration failed: ${err}`)
       );
   }
 
   render() {
-    const {changeUsername, changeBalance} = this.props;
+    const {
+      username,
+      balance,
+      changeRegistrationUsername,
+      changeRegistrationBalance,
+    } = this.props;
 
     return (
       <div>
@@ -30,13 +30,15 @@ export class Registration extends Component {
           <input
             type={'text'}
             name={'username'}
-            onChange={(e) => changeUsername(e.target.value.trim())}
+            value={username}
+            onChange={(e) => changeRegistrationUsername(e.target.value.trim())}
           />
           <input
             type={'number'}
             name={'balance'}
             step={0.01}
-            onChange={(e) => changeBalance(e.target.value)}
+            value={balance}
+            onChange={(e) => changeRegistrationBalance(e.target.value)}
           />
           <input type={'submit'} />
         </form>

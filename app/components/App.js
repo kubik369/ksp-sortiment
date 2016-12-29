@@ -1,55 +1,40 @@
 import React, {Component} from 'react';
-import {Container, Row, Col} from 'react-grid-system';
+import {Grid, Row, Col} from 'react-bootstrap';
 
 import SortimentC from '../containers/Sortiment';
-import CheckoutC from '../containers/Checkout';
-import LoginC from '../containers/Login';
-import NewStockC from '../containers/NewStock';
+import AddStockC from '../containers/AddStock';
 import AddCreditC from '../containers/AddCredit';
+import SidebarC from '../containers/Sidebar';
+import RegistrationC from '../containers/Registration';
+import {Welcome} from './Welcome';
+
+import {pages} from '../constants/enums/pages';
 
 import './App.css';
 
 export class App extends Component {
   render() {
-    const {addingStock, loggedIn} = this.props;
+    const {loggedIn, currentPage} = this.props;
+
+    const allPages = {
+      [pages.welcome]: !loggedIn && <Welcome />,
+      [pages.registration]: <RegistrationC />,
+      [pages.addCredit]: <AddCreditC />,
+      [pages.addStock]: <AddStockC />,
+      [pages.store]: <SortimentC />,
+    };
 
     return (
-      <Container>
-        <Row>
-          <h1 styleName="title">Tu raz bude ceeeellyyyy sortiment</h1>
-        </Row>
-        <Row id={'profile-info'}>
-          <Col lg={2}>
-            <LoginC />
+      <Grid style={{height: '100%', width: '100%', margin: '0'}}>
+        <Row style={{height: '100%'}}>
+          <Col lg={2} md={2} sm={2} style={{height: '100%'}}>
+            <SidebarC />
           </Col>
-          {loggedIn &&
-            <Col lg={4}>
-              <AddCreditC />
-            </Col>
-          }
+          <Col lg={10} md={10} sm={10} style={{height: '100%'}}>
+            {allPages[currentPage]}
+          </Col>
         </Row>
-        <Row>
-          {addingStock &&
-            <Col lg={12}>
-              <NewStockC />
-            </Col>}
-          {(loggedIn && !addingStock) &&
-            <div>
-              <Col lg={9}>
-                <SortimentC />
-              </Col>
-              <Col lg={3}>
-                <CheckoutC />
-              </Col>
-            </div>
-          }
-          {!loggedIn &&
-            <Col lg={12}>
-              <p>Sign in in order to start shopping</p>
-            </Col>
-          }
-        </Row>
-      </Container>
+      </Grid>
     );
   }
 }

@@ -1,9 +1,9 @@
-import {get, set} from 'lodash';
+import {get} from 'lodash';
 
 import {
   ADD_TO_CART,
   REMOVE_FROM_CART,
-  GO_TO_STEP,
+  GO_TO_PAGE,
   FETCHING_USERS,
   RECEIVED_USERS,
   FETCHING_PRODUCTS,
@@ -14,11 +14,16 @@ import {
   CHANGE_NEW_STOCK_SEARCH,
   CHANGE_NEW_STOCK_QUANTITY,
   CHANGE_NEW_STOCK_PRICE,
+  CHANGE_NEW_STOCK_IMAGE_CHECKBOX,
   SEARCH_USERNAME,
   LOG_IN,
   LOG_OUT,
   CHANGE_BALANCE,
+  REGISTRATION_CHANGE_USERNAME,
+  REGISTRATION_CHANGE_BALANCE,
 } from '../constants/actionTypes';
+
+import {pages} from '../constants/enums/pages';
 
 export default function rootReducer(state = {}, action) {
   switch (action.type) {
@@ -40,10 +45,10 @@ export default function rootReducer(state = {}, action) {
         },
       };
 
-    case GO_TO_STEP:
+    case GO_TO_PAGE:
       return {
         ...state,
-        currentStep: action.step,
+        currentPage: action.page,
       };
 
     case SEARCH_USERNAME:
@@ -62,6 +67,7 @@ export default function rootReducer(state = {}, action) {
           loggedIn: true,
           username: action.username,
         },
+        currentPage: pages.store,
       };
 
     case LOG_OUT:
@@ -71,6 +77,25 @@ export default function rootReducer(state = {}, action) {
           loggedIn: false,
           search: '',
           username: '',
+        },
+        currentPage: pages.welcome,
+      };
+
+    case REGISTRATION_CHANGE_USERNAME:
+      return {
+        ...state,
+        registration: {
+          ...state.registration,
+          username: action.username,
+        },
+      };
+
+    case REGISTRATION_CHANGE_BALANCE:
+      return {
+        ...state,
+        registration: {
+          ...state.registration,
+          balance: action.balance,
         },
       };
 
@@ -86,7 +111,7 @@ export default function rootReducer(state = {}, action) {
         users: {
           ...state.users,
           fetching: true,
-        }
+        },
       };
 
     case RECEIVED_USERS:
@@ -95,7 +120,7 @@ export default function rootReducer(state = {}, action) {
         users: {
           fetching: false,
           data: action.users,
-        }
+        },
       };
 
     case FETCHING_PRODUCTS:
@@ -104,7 +129,7 @@ export default function rootReducer(state = {}, action) {
         products: {
           ...state.products,
           fetching: true,
-        }
+        },
       };
 
     case RECEIVED_PRODUCTS:
@@ -120,7 +145,7 @@ export default function rootReducer(state = {}, action) {
         products: {
           fetching: false,
           data: action.products,
-        }
+        },
       };
 
     case START_ADDING_NEW_STOCK:
@@ -147,7 +172,7 @@ export default function rootReducer(state = {}, action) {
         newStock: {
           ...state.newStock,
           id: action.id,
-        }
+        },
       };
 
     case CHANGE_NEW_STOCK_SEARCH:
@@ -156,7 +181,7 @@ export default function rootReducer(state = {}, action) {
         newStock: {
           ...state.newStock,
           search: action.text,
-        }
+        },
       };
 
     case CHANGE_NEW_STOCK_QUANTITY:
@@ -165,7 +190,7 @@ export default function rootReducer(state = {}, action) {
         newStock: {
           ...state.newStock,
           quantity: action.quantity,
-        }
+        },
       };
 
     case CHANGE_NEW_STOCK_PRICE:
@@ -174,7 +199,16 @@ export default function rootReducer(state = {}, action) {
         newStock: {
           ...state.newStock,
           price: action.price,
-        }
+        },
+      };
+
+    case CHANGE_NEW_STOCK_IMAGE_CHECKBOX:
+      return {
+        ...state,
+        newStock: {
+          ...state.newStock,
+          uploadImage: action.checkbox,
+        },
       };
 
     default:

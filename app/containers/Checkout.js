@@ -3,7 +3,6 @@ import {connect} from 'react-redux';
 import {get} from 'lodash';
 
 import {
-  goToStep,
   fetchUsers,
   changeBalance,
   fetchProducts,
@@ -30,7 +29,6 @@ function mapStateToProps(state, props) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      goToStep,
       fetchUsers,
       changeBalance,
       fetchProducts,
