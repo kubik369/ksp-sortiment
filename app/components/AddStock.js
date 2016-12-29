@@ -193,7 +193,7 @@ export class AddStock extends Component {
 
   render() {
     return (
-      <Grid>
+      <Grid fluid>
         <Row>
           <Col lg={12}>
             <h2>Add Product/Restock</h2>
