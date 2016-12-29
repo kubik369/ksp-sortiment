@@ -1,6 +1,6 @@
 .DS_Store
 build
-static
+static/bundle.js
 dist
 sortiment.sqlite
 
