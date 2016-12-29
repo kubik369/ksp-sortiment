@@ -39,8 +39,8 @@ export function runServer() {
     <html>
       <head>
         <title>Sortiment</title>
-        <link rel="stylesheet" href="/css/bootstrap.min.css">
-        <link rel="stylesheet" href="/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+        <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
       </head>
       <style>
         html, body, #root {
@@ -64,7 +64,6 @@ export function runServer() {
   app.post('/addStock', addStock);
 
   app.use('/images', express.static('images'));
-  app.use('/css', express.static('css'));
   app.use('/static', express.static('static'));
 
   // redirect everything else to /

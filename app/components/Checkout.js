@@ -55,20 +55,26 @@ export class Checkout extends Component {
           </Row>
           <h2>Košík</h2>
           <div styleName={'cart'}>
-            {Object.keys(cart).map(
-              (id) => (cart[id] > 0) &&
-                (<div styleName={'cartItem'} key={id}>
-                  <Row>
-                    <Col lg={6} md={6} sm={6}>{products[id].label}</Col>
-                    <Col lg={2} md={2} sm={2}>{cart[id]}</Col>
-                    <Col lg={4} md={4} sm={4}>
-                      <Button>
-                        <Glyphicon glyph={'remove'} onClick={() => cart[id] > 0 && removeFromCart(id)} />
-                      </Button>
-                    </Col>
-                  </Row>
-                </div>)
-            )}
+            <Grid fluid>
+              {Object.keys(cart).map(
+                (id) => (cart[id] > 0) &&
+                  (<div styleName={'cartItem'} key={id}>
+                    <Row>
+                      <Row>
+                        <Col lg={12} md={12} sm={12}>{products[id].label}</Col>
+                      </Row>
+                      <Row>
+                        <Col lg={6} md={6} sm={6}>{`${cart[id]} ks`}</Col>
+                        <Col lg={6} md={6} sm={6}>
+                          <Button>
+                            <Glyphicon glyph={'remove'} onClick={() => cart[id] > 0 && removeFromCart(id)} />
+                          </Button>
+                        </Col>
+                      </Row>
+                    </Row>
+                  </div>)
+              )}
+            </Grid>
           </div>
         </Grid>
       </div>

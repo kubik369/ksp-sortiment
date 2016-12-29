@@ -19,8 +19,10 @@ export class Sortiment extends Component {
         <Row>
           <Col lg={9} md={9} sm={9}
             style={{
-              maxHeight: '600px',
-              overflowY: 'scroll',
+              maxHeight: '560px',
+              overflowY: 'auto',
+              marginTop: '20px',
+              marginBottom: '20px',
             }}
             ><Panel>{products}</Panel></Col>
           <Col lg={3} md={3} sm={3}><CheckoutC /></Col>

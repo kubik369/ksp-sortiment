@@ -2,6 +2,7 @@
 build
 static
 dist
+sortiment.sqlite
 
 # Logs
 logs
