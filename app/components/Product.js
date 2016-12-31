@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Container, Row, Col} from 'react-grid-system';
+import {Grid, Row, Col} from 'react-bootstrap';
 
 import './Product.css';
 
@@ -14,14 +14,14 @@ export class Product extends Component {
 
     return (
       <div styleName={'product'}>
-        <Container>
+        <Grid fluid>
           <Row>
-            <Col lg={12} sm={12}>
+            <Col lg={12} md={12} sm={12}>
               <div styleName={'label'}>{productInfo.label}</div>
             </Col>
           </Row>
           <Row>
-            <Col lg={12} sm={12}>
+            <Col lg={12} md={12} sm={12}>
               <img
                 styleName={'image'}
                 src={`/images/${productInfo.label}.jpg`}
@@ -30,16 +30,16 @@ export class Product extends Component {
             </Col>
           </Row>
           <Row>
-            <Col lg={12} sm={12}>
+            <Col lg={12} md={12} sm={12}>
               <div styleName={'price'}>{`${productInfo.price.toFixed(2)}€`}</div>
             </Col>
           </Row>
           <Row>
-            <Col lg={12} sm={12}>
+            <Col lg={12} md={12} sm={12}>
               <div styleName={'stock'}>{`${stockLeft}ks`}</div>
             </Col>
           </Row>
-        </Container>
+        </Grid>
       </div>
     );
   }

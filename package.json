@@ -47,7 +47,6 @@
     "react-bootstrap": "^0.30.7",
     "react-css-modules": "^4.1.0",
     "react-dom": "^15.4.1",
-    "react-grid-system": "^1.5.2",
     "react-list": "^0.8.0",
     "react-redux": "^4.4.6",
     "redux": "^3.6.0",
