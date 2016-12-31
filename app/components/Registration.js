@@ -12,9 +12,11 @@ export class Registration extends Component {
     axios
       .post('/register', {username: username, balance: balance})
       .then((res) => logIn(username))
-      .catch(
-        (err) => console.error(`Registration failed: ${err}`)
-      );
+      .catch((err) => {
+        console.error(`Registration failed: ${err}`);
+        // eslint-disable-next-line no-alert
+        window.alert('Niečo sa stalo, tvoje meno už je použité alebo nebolo možné dosiahnuť server.');
+      });
   }
 
   render() {
