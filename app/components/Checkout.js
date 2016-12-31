@@ -69,7 +69,6 @@ export class Checkout extends Component {
             padding: '0',
             maxHeight: '600px',
             marginTop: '20px',
-            marginBottom: '20px',
           }}>
           <Panel style={{padding: 0}}>
             <Row>

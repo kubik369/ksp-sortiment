@@ -25,7 +25,9 @@ export class Sortiment extends Component {
               marginBottom: '20px',
             }}
             ><Panel>{products}</Panel></Col>
-          <Col lg={3} md={3} sm={3}><CheckoutC /></Col>
+          <Col lg={3} md={3} sm={3}>
+            <CheckoutC />
+          </Col>
         </Row>
       </Grid>
     );

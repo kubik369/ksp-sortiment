@@ -54,8 +54,7 @@ export function runServer() {
 
       </style>
       <body>
-        <div id='root'>
-        </div>
+        <div id='root' />
         <script src="/static/bundle.js"></script>
       </body>
     </html>
