@@ -53,15 +53,14 @@ export function addCredit(req, res) {
       {$ts: moment().toISOString(), $user: username, $change: credit, $info: 'credit'}
     );
   }).then(() => {
-    console.log('success')
     res.status(200).send();
   }).catch(() => {
     res.status(500).send();
-  })
+  });
 }
 
 export async function buy(req, res) {
-  const {cart, username} = req.body;
+  const {cart, username, useCredit} = req.body;
 
   const products = await db.all('SELECT * FROM products')
     .reduce((res, item) => ({...res, [item.id]: item}), {});
@@ -79,7 +78,7 @@ export async function buy(req, res) {
   }
 
   const total = Object.values(products).reduce(
-    (total, product) =>  total + product.price * cart[product.id], 0
+    (total, product) => total + product.price * cart[product.id], 0
   );
 
   Promise.all(
@@ -92,7 +91,7 @@ export async function buy(req, res) {
   ).then(() => {
     return db.run(
       'UPDATE users SET balance = balance - $debit WHERE username=$username',
-      {$debit: total, $username: username}
+      {$debit: useCredit ? total : 0, $username: username}
     );
   }).then(() => {
     return db.run(
@@ -100,10 +99,10 @@ export async function buy(req, res) {
       {
         $ts: moment().toISOString(),
         $user: username,
-        $debit: -total,
+        $debit: useCredit ? -total : 0,
         $info: Object.keys(cart).map(
           (id) => cart[id] ? `${cart[id]} ${products[id].label}` : ''
-        ).join(','),
+        ).join(';'),
       }
     );
   }).then(() => {
@@ -122,7 +121,7 @@ function getNewPrice(oldPrice, oldStock, newPrice, newStock) {
 
 export async function addStock(req, res) {
   const {username, label, quantity, price, uploadImage} = req.body;
-  
+
   if (uploadImage) {
     fs.writeFile(
       `./images/${label}.jpg`,
@@ -135,7 +134,7 @@ export async function addStock(req, res) {
 
   if (product) {
     const newPrice = getNewPrice(product.price, product.stock, price, quantity);
-    
+
     db
       .run(
         'UPDATE products SET stock = stock + $newStock, price=$newPrice WHERE label=$label;',
@@ -149,7 +148,7 @@ export async function addStock(req, res) {
             $user: username,
             $info: `stock;${label};${price};${quantity}`,
           }
-        )
+        );
       })
       .then(() => {
         res.status(200).send();
@@ -162,11 +161,7 @@ export async function addStock(req, res) {
     db
       .run(
         'INSERT INTO products(label, price, stock) VALUES ($label, $price, $stock)',
-        {
-          $label: label,
-          $price: price,
-          $stock: quantity,
-        }
+        {$label: label, $price: price, $stock: quantity}
       )
       .then(() => {
         return db.run(
@@ -176,7 +171,7 @@ export async function addStock(req, res) {
             $user: username,
             $info: `stock;${label};${price};${quantity}`,
           }
-        )
+        );
       })
       .then(() => {
         res.status(200).send();

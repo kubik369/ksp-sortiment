@@ -17,6 +17,11 @@ export class Product extends Component {
         <Container>
           <Row>
             <Col lg={12} sm={12}>
+              <div styleName={'label'}>{productInfo.label}</div>
+            </Col>
+          </Row>
+          <Row>
+            <Col lg={12} sm={12}>
               <img
                 styleName={'image'}
                 src={`/images/${productInfo.label}.jpg`}
@@ -26,17 +31,12 @@ export class Product extends Component {
           </Row>
           <Row>
             <Col lg={12} sm={12}>
-              <div styleName={'label'}>{productInfo.label}</div>
-            </Col>
-          </Row>
-          <Row>
-            <Col lg={12} sm={12}>
               <div styleName={'price'}>{`${productInfo.price.toFixed(2)}€`}</div>
             </Col>
           </Row>
           <Row>
             <Col lg={12} sm={12}>
-              <div styleName={'label'}>{`Na sklade ${stockLeft}ks`}</div>
+              <div styleName={'stock'}>{`${stockLeft}ks`}</div>
             </Col>
           </Row>
         </Container>

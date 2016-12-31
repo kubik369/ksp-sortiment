@@ -1,5 +1,6 @@
 .product {
-    background-color: green;
+    
+    background-image: url('/images/background.png');
     border: 1px solid black;
     border-radius: 10px;
     margin: 5px;
@@ -18,6 +19,7 @@
 .label {
     text-align: center;
     font-size: 1.25em;
+    font-weight: bold;
 }
 
 .price {
@@ -27,4 +29,5 @@
 
 .stock {
     text-align: center;
+    font-size: 1.25em;
 }

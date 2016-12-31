@@ -1,0 +1,14 @@
+{
+  "rules": {
+   "no-console": 0,
+  },
+  "env": {
+    "browser": false,
+    "node": true,
+  },
+  "globals": {
+    // Because webpack handles it.
+    "process": true,
+    "require": true,
+  },
+}

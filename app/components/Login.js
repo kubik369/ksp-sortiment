@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button} from 'react-bootstrap';
+import {Button, ControlLabel, FormControl} from 'react-bootstrap';
 
 import './Login.css';
 
@@ -33,7 +33,7 @@ export class Login extends Component {
     return (<div styleName={'login'}>
       {!loggedIn &&
         <form>
-          <input
+          <FormControl
             type={'text'}
             name={'username'}
             value={search}
@@ -47,8 +47,12 @@ export class Login extends Component {
       }
       {loggedIn &&
         <div>
-          Prihlásený: {username}
-          <p>Zostatok na účte: {balance.toFixed(2)}€</p>
+          <div>
+            <ControlLabel>Prihlásený:</ControlLabel>{username}
+          </div>
+          <div>
+            <ControlLabel>Zostatok na účte:</ControlLabel> {balance.toFixed(2)}€
+          </div>
         </div>
       }
     </div>);

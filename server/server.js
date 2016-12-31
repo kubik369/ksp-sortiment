@@ -13,7 +13,7 @@ import {
   addStock,
 } from './routes';
 import config from '../config.js';
-import webpackConfig from '../webpack.config.js'
+import webpackConfig from '../webpack.config.js';
 
 export function runServer() {
   const app = express();
@@ -47,6 +47,11 @@ export function runServer() {
           height: 100%;
           margin: 0 0 0 0;
         }
+
+        #root {
+          background-image: url('/images/background.jpg');
+        }
+
       </style>
       <body>
         <div id='root'>

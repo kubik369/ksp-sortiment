@@ -8,6 +8,8 @@ import {
   ButtonToolbar,
   ControlLabel,
   Alert,
+  Panel,
+  PageHeader,
 } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -193,38 +195,36 @@ export class AddStock extends Component {
 
   render() {
     return (
-      <Grid fluid>
-        <Row>
-          <Col lg={12}>
-            <h2>Add Product/Restock</h2>
-          </Col>
-        </Row>
+      <Grid fluid style={{marginTop: '20px'}}>
         <Row>
           <Col lg={12} md={12} sm={12}>
-            <form onSubmit={(e) => this.addStock(e)}>
-              <Row>
-                <Col lg={6} md={6} sm={6}>
-                  {this.renderProductSearch()}
-                </Col>
-                <Col lg={3} md={3} sm={3}>
-                  {this.renderStockForm()}
-                </Col>
-                <Col lg={3} md={3} sm={3}>
-                  {this.renderImageUploadForm()}
-                </Col>
-              </Row>
-              <Row><div styleName={'line'} /></Row>
-              <Row>
-                <div styleName={'addStockButton'}>
-                  <Col lg={4} md={4} sm={4} />
-                  <Col lg={4} md={4} sm={4}>
-                    <FormControl type={'submit'} value={'Add stock'} />
-                    {!this.props.newStock.id && <Alert bsStyle={'warning'}>This item will be new!</Alert>}
+            <Panel>
+              <PageHeader>Pridať tovar</PageHeader>
+              <form onSubmit={(e) => this.addStock(e)}>
+                <Row>
+                  <Col lg={6} md={6} sm={6}>
+                    {this.renderProductSearch()}
                   </Col>
-                  <Col lg={4} md={4} sm={4} />
-                </div>
-              </Row>
-            </form>
+                  <Col lg={3} md={3} sm={3}>
+                    {this.renderStockForm()}
+                  </Col>
+                  <Col lg={3} md={3} sm={3}>
+                    {this.renderImageUploadForm()}
+                  </Col>
+                </Row>
+                <Row><div styleName={'line'} /></Row>
+                <Row>
+                  <div styleName={'addStockButton'}>
+                    <Col lg={4} md={4} sm={4} />
+                    <Col lg={4} md={4} sm={4}>
+                      <FormControl type={'submit'} value={'Add stock'} />
+                      {!this.props.newStock.id && <Alert bsStyle={'warning'}>This item will be new!</Alert>}
+                    </Col>
+                    <Col lg={4} md={4} sm={4} />
+                  </div>
+                </Row>
+              </form>
+            </Panel>
           </Col>
         </Row>
       </Grid>

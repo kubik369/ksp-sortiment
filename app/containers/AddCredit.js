@@ -8,7 +8,7 @@ import {AddCredit} from '../components/AddCredit';
 function mapStateToProps(state, props) {
   return {
     username: get(state, 'login.username', 'No user selected'),
-    balance: get(state, `users.data[${get(state, 'username', '')}].balance`, 0),
+    balance: get(state, 'balance', 0),
   };
 };
 

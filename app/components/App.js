@@ -27,10 +27,10 @@ export class App extends Component {
     return (
       <Grid fluid style={{height: '100%', margin: '0'}}>
         <Row style={{height: '100%'}}>
-          <Col lg={2} md={2} sm={2} style={{height: '100%'}}>
+          <Col lg={2} md={2} sm={2} style={{height: '100%', padding: '0'}}>
             <SidebarC />
           </Col>
-          <Col lg={10} md={10} sm={10} style={{height: '100%'}}>
+          <Col lg={10} md={10} sm={10} style={{height: '100%', padding: '0'}}>
             {allPages[currentPage]}
           </Col>
         </Row>

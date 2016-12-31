@@ -3,10 +3,7 @@
 }
 
 .cart {
-    margin-top: 10px;
-    border: 1px solid black;
-    padding: 10px;
-    height: 430px;
+    height: 350px;
     overflow-y: auto;
     overflow-x: hidden;
 }
