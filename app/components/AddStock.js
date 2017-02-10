@@ -1,15 +1,7 @@
 import React, {Component} from 'react';
 import {
-  Grid,
-  Row,
-  Col,
-  FormControl,
-  Button,
-  ButtonToolbar,
-  ControlLabel,
-  Alert,
-  Panel,
-  PageHeader,
+  Grid, Row, Col, FormControl, Button, ButtonToolbar,
+  ControlLabel, Alert, Panel, PageHeader,
 } from 'react-bootstrap';
 import axios from 'axios';
 
@@ -23,9 +15,7 @@ export class AddStock extends Component {
     return (
       <ButtonToolbar>
         {Object.values(products)
-          .filter(
-          (product) => new RegExp(`^${newStock.search}`).test(product.label)
-          )
+          .filter((product) => new RegExp(`^${newStock.search}`).test(product.label.toLowerCase()))
           .slice(0, 9)
           .map((product, i) =>
             (<Button
@@ -61,6 +51,15 @@ export class AddStock extends Component {
     const {search, quantity, price, uploadImage} = this.props.newStock;
     const {username} = this.props;
 
+    if (price.indexOf(',') !== -1) {
+      window.alert('Použi v cenách bodku!');
+      return;
+    }
+    if (!(search.trim() && quantity && !isNaN(price))) {
+      window.alert('Chýbajúce alebo chybné údaje!');
+      return;
+    }
+
     if (uploadImage) {
       let file = e.target.image.files[0];
       let reader = new FileReader();
@@ -69,7 +68,13 @@ export class AddStock extends Component {
         const image = reader.result;
 
         axios
-          .post('/addstock', {username, label: search, quantity, price, uploadImage, image})
+          .post('/addstock', {
+            username,
+            label: search.trim(),
+            quantity: quantity.trim(),
+            price: price.trim(),
+            uploadImage,
+            image})
           .then(() => {
             this.deleteForm();
           }).catch((err) => {
@@ -144,15 +149,14 @@ export class AddStock extends Component {
       <div>
         <ControlLabel>Počet:</ControlLabel>
         <FormControl
-          type={'number'}
+          type={'text'}
           value={newStock.quantity}
-          min={1}
           placeholder={'Quantity'}
           onChange={(e) => changeNewStockQuantity(e.target.value)}
           />
         <ControlLabel>Cena:</ControlLabel>
         <FormControl
-          type={'number'}
+          type={'text'}
           value={newStock.price}
           min={0}
           step={0.01}

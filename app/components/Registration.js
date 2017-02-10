@@ -9,8 +9,13 @@ export class Registration extends Component {
     e.preventDefault();
     const {username, balance, logIn} = this.props;
 
+    if (!(username && balance && !isNaN(balance))) {
+      window.alert('Chýbajúce alebo chybné údaje!');
+      return;
+    }
+
     axios
-      .post('/register', {username: username, balance: balance})
+      .post('/register', {username: username.trim(), balance})
       .then((res) => logIn(username))
       .catch((err) => {
         console.error(`Registration failed: ${err}`);
@@ -48,17 +53,20 @@ export class Registration extends Component {
                   <Col lg={4} md={4} sm={4}>
                     <ControlLabel>Počiatočný kredit</ControlLabel>
                     <FormControl
-                      type={'number'}
+                      type={'text'}
                       name={'balance'}
-                      step={0.01}
                       value={balance}
+                      placeholder={'Počiatočný kredit'}
                       onChange={(e) => changeRegistrationBalance(e.target.value)}
                     />
                   </Col>
                   <Col lg={4} md={4} sm={4}>
-                    <Button bsStyle={'success'} type={'submit'} style={{marginTop: '25px'}}>
-                      Registrácia
-                    </Button>
+                    <Button
+                      bsStyle={'success'}
+                      type={'submit'}
+                      style={{marginTop: '25px'}}
+                      disabled={!(username && balance && !isNaN(balance))}
+                    >Registrácia</Button>
                   </Col>
                 </Row>
               </form>

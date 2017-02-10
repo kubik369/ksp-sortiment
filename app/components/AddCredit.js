@@ -8,13 +8,14 @@ export class AddCredit extends Component {
     const {username, fetchUsers, balance} = this.props;
 
     if (balance == null || balance <= 0) {
+      window.alert('Neplatná hodnota!');
       return;
     }
     // eslint-disable-next-line no-alert
     if (window.confirm(`Želáte si pridať ${balance}€ uživateľovi ${username}?`)) {
       axios
         .post(
-          '/credit', {username: username, credit: balance}
+          '/credit', {username: username, credit: balance.trim()}
         ).then(
           (res) => fetchUsers()
         ).catch(
@@ -36,12 +37,11 @@ export class AddCredit extends Component {
                 <Row>
                   <Col lg={6} md={6} sm={6}>
                     <FormControl
-                      type={'number'}
+                      type={'text'}
                       name={'credit'}
-                      step={0.01}
                       placeholder={'Kredit'}
                       value={balance}
-                      onChange={(e) => changeBalance(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => changeBalance(e.target.value)}
                       />
                   </Col>
                   <Col lg={4} md={4} sm={4}>

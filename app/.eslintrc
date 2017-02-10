@@ -1,6 +1,7 @@
 {
   "rules": {
    "no-console": 2,
+   "no-alert": 0,
   },
   "env": {
     "browser": true,
