@@ -18,7 +18,7 @@ import webpackConfig from '../webpack.config.js';
 export function runServer() {
   const app = express();
 
-  app.use(bodyParser.json());
+  app.use(bodyParser.json({limit: '10mb'}));
   app.use(bodyParser.urlencoded({extended: true}));
 
   if (config.dev) {
