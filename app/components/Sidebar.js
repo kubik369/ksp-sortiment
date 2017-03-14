@@ -37,7 +37,7 @@ export class Sidebar extends Component {
                     bsStyle={'primary'}
                     onClick={() => goToPage(pages.addCredit)}
                     block
-                    >Nabi kredit</Button>
+                    >Nabi kredit / vyber hotovosť</Button>
                   <Button
                     bsStyle={'primary'}
                     onClick={() => goToPage(pages.addStock)}
