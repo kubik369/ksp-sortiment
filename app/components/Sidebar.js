@@ -34,10 +34,11 @@ export class Sidebar extends Component {
                     block
                     >Obchod</Button>
                   <Button
+                    styleName={'credit'}
                     bsStyle={'primary'}
                     onClick={() => goToPage(pages.addCredit)}
                     block
-                    >Nabi kredit</Button>
+                    >Nabi kredit <br />vyber hotovosť</Button>
                   <Button
                     bsStyle={'primary'}
                     onClick={() => goToPage(pages.addStock)}
