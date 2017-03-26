@@ -12,7 +12,7 @@ export class Checkout extends Component {
   }
 
   checkout = (useCredit) => {
-    const {cart, username, fetchUsers, fetchProducts} = this.props;
+    const {cart, username, fetchUsers, fetchProducts, logOut} = this.props;
 
     // empty cart
     if (Object.values(cart).reduce((total, item) => total + item) === 0) {
@@ -25,6 +25,7 @@ export class Checkout extends Component {
         fetchUsers();
         fetchProducts();
         window.alert('Purchase successful'); // eslint-disable-line no-alert
+        logOut();
       })
       .catch((err) => console.error('Error during checkout:', err));
   }

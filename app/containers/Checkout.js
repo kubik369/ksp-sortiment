@@ -10,6 +10,7 @@ import {
   changeNewStockId,
   changeNewStockSearch,
   changeNewStockQuantity,
+  logOut,
 } from '../actions/actions';
 import {Checkout} from '../components/Checkout';
 
@@ -36,6 +37,7 @@ function mapDispatchToProps(dispatch) {
       changeNewStockId,
       changeNewStockSearch,
       changeNewStockQuantity,
+      logOut,
     },
     dispatch
   );

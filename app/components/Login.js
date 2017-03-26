@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Button, ControlLabel, FormControl} from 'react-bootstrap';
+import {remove as removeDiacritics} from 'diacritics'
 
 import './Login.css';
 
@@ -13,7 +14,8 @@ export class Login extends Component {
       return [];
     }
     return Object.values(users)
-      .filter((user) => new RegExp(`^${search}`).test(user.username))
+      .filter((user) => new RegExp(`^${removeDiacritics(search).trim().toLowerCase()}`)
+      .test(removeDiacritics(user.username).toLowerCase()))
       .slice(0, 9)
       .map(
         (user, i) =>

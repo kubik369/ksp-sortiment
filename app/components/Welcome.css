@@ -1,3 +1,18 @@
+.wrapper {
+    height: 100%;
+    margin-top: 20px;
+}
+
 .title {
-    font-size: 0.5em;
+    font-size: 2em !important;
+    font-weight: bold;
+}
+
+p {
+    font-size: 1.2em !important;
+    text-align: center;
+}
+
+.nameLogin {
+    margin: 3px;
 }

@@ -6,13 +6,14 @@ import AddStockC from '../containers/AddStock';
 import AddCreditC from '../containers/AddCredit';
 import SidebarC from '../containers/Sidebar';
 import RegistrationC from '../containers/Registration';
-import {Welcome} from './Welcome';
+import Welcome from '../containers/Welcome';
 
 import {pages} from '../constants/enums/pages';
 
 import './App.css';
 
 export class App extends Component {
+
   render() {
     const {loggedIn, currentPage} = this.props;
 

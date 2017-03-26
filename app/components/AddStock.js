@@ -4,10 +4,15 @@ import {
   ControlLabel, Alert, Panel, PageHeader,
 } from 'react-bootstrap';
 import axios from 'axios';
+import {remove as removeDiacritics} from 'diacritics'
 
 import './AddStock.css';
 
 export class AddStock extends Component {
+
+  componentWillMount() {
+    this.props.fetchProducts();
+  }
 
   filterProducts = () => {
     const {newStock, products} = this.props;
@@ -15,7 +20,10 @@ export class AddStock extends Component {
     return (
       <ButtonToolbar>
         {Object.values(products)
-          .filter((product) => new RegExp(`^${newStock.search}`).test(product.label.toLowerCase()))
+          .filter((product) => (
+              new RegExp(`^${removeDiacritics(newStock.search).trim().toLowerCase()}`)
+              .test(removeDiacritics(product.label).toLowerCase())
+          ))
           .slice(0, 9)
           .map((product, i) =>
             (<Button
@@ -74,7 +82,8 @@ export class AddStock extends Component {
             quantity: quantity.trim(),
             price: price.trim(),
             uploadImage,
-            image})
+            image
+          })
           .then(() => {
             this.deleteForm();
           }).catch((err) => {

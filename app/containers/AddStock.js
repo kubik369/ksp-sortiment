@@ -17,7 +17,7 @@ function mapStateToProps(state, props) {
     username: get(state, 'login.username', 'No user selected'),
     products: get(state, 'products.data', []),
     fetchingProducts: get(state, 'products.fetching', true),
-    newStock: get(state, 'newStock', {}),
+    newStock: get(state, 'newStock', {search: ''}),
   };
 };
 
