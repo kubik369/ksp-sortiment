@@ -1,8 +1,13 @@
 h1 {
-    font-size: 1.4em;
-    text-align: center;
+  font-size: 1.4em;
+  text-align: center;
 }
 
 .wrapper {
-    margin-top: 20px;
+  margin-top: 20px;
+}
+
+.credit {
+  padding-left: 7px;
+  text-align: center;
 }
