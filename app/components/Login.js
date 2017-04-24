@@ -10,7 +10,7 @@ import {PATH_SHOP} from '../reducers/shop';
 
 import './Login.css';
 
-export class Login extends Component {
+class Login extends Component {
   componentWillMount = () => this.props.fetchUsers()
 
   filterUsers = () => {
@@ -73,7 +73,11 @@ export default connect(
     loggedIn: get(state, [...PATH_SHOP, 'login', 'loggedIn']),
     search: get(state, [...PATH_SHOP, 'login', 'search']),
     username: get(state, [...PATH_SHOP, 'login', 'username']),
-    balance: get(state, [...PATH_SHOP, 'users', 'data', get(state, [...PATH_SHOP, 'login', 'username']), 'balance'], 0),
+    balance: get(
+      state,
+      [...PATH_SHOP, 'users', 'data', get(state, [...PATH_SHOP, 'login', 'username']), 'balance'],
+      0
+    ),
     fetching: get(state, [...PATH_SHOP, 'users', 'fetching']),
   }),
   (dispatch) => bindActionCreators(

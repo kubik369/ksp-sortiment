@@ -157,14 +157,14 @@ export default function shopReducer(state = {}, action) {
       return update(state, {
         processingPurchase: {
           [action.method === 'cash' ? 'cash' : 'credit']: {$set: true},
-        } ,
+        },
       });
 
     case AT.STOP_PROCESSING_PURCHASE:
       return update(state, {
         processingPurchase: {
           [action.method === 'cash' ? 'cash' : 'credit']: {$set: false},
-        } ,
+        },
       });
 
     default:

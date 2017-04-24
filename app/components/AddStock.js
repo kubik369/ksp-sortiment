@@ -96,7 +96,7 @@ class AddStock extends Component {
             quantity: quantity.trim(),
             price: price.trim(),
             uploadImage,
-            image
+            image,
           })
           .then(() => {
             this.deleteForm();
