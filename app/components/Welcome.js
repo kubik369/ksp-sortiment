@@ -1,9 +1,15 @@
 import React, {Component} from 'react';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
 import {Grid, Row, Col, Jumbotron, Button} from 'react-bootstrap';
+
+import {fetchUsers, logIn} from '../actions/actions';
+import {PATH_SHOP} from '../reducers/shop';
 
 import './Welcome.css';
 
-export class Welcome extends Component {
+class Welcome extends Component {
 
   componentWillMount() {
     this.props.fetchUsers();
@@ -39,3 +45,13 @@ export class Welcome extends Component {
     );
   }
 }
+
+export default connect(
+  (state) => ({
+    users: get(state, [...PATH_SHOP, 'users', 'data']),
+  }),
+  (dispatch) => bindActionCreators(
+    {fetchUsers, logIn},
+    dispatch
+  )
+)(Welcome);

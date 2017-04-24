@@ -1,13 +1,17 @@
 import React, {Component} from 'react';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
 import {Button, Panel, Grid, Row, Col} from 'react-bootstrap';
 
-import LoginC from '../containers/Login';
-
 import {pages} from '../constants/enums/pages';
+import {goToPage, logOut} from '../actions/actions';
+import {PATH_SHOP} from '../reducers/shop';
+import Login from './Login';
 
 import './Sidebar.css';
 
-export class Sidebar extends Component {
+class Sidebar extends Component {
   render() {
     const {loggedIn, goToPage, logOut} = this.props;
 
@@ -51,7 +55,7 @@ export class Sidebar extends Component {
                     >Odhlásenie</Button>
                 </div>
               }
-              <LoginC />
+              <Login />
             </Panel>
           </Col>
         </Row>
@@ -59,3 +63,11 @@ export class Sidebar extends Component {
     );
   }
 }
+
+export default connect(
+  (state) => ({
+    addingStock: get(state, [...PATH_SHOP, 'newStock', 'active']),
+    loggedIn: get(state, [...PATH_SHOP, 'login', 'loggedIn']),
+  }),
+  (dispatch) => bindActionCreators({goToPage, logOut}, dispatch)
+)(Sidebar);

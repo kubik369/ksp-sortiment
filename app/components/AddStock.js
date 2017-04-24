@@ -1,14 +1,28 @@
 import React, {Component} from 'react';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
 import {
   Grid, Row, Col, FormControl, Button, ButtonToolbar,
   ControlLabel, Alert, Panel, PageHeader,
 } from 'react-bootstrap';
 import axios from 'axios';
-import {remove as removeDiacritics} from 'diacritics'
+import {remove as removeDiacritics} from 'diacritics';
+
+import {
+  fetchProducts,
+  changeNewStockId,
+  changeNewStockSearch,
+  changeNewStockQuantity,
+  changeNewStockPrice,
+  changeNewStockImageCheckbox,
+} from '../actions/actions';
+import {addNotification} from '../actions/notifications';
+import {PATH_SHOP} from '../reducers/shop';
 
 import './AddStock.css';
 
-export class AddStock extends Component {
+class AddStock extends Component {
 
   componentWillMount() {
     this.props.fetchProducts();
@@ -21,7 +35,7 @@ export class AddStock extends Component {
       <ButtonToolbar>
         {Object.values(products)
           .filter((product) => (
-              new RegExp(`^${removeDiacritics(newStock.search).trim().toLowerCase()}`)
+            new RegExp(`^${removeDiacritics(newStock.search).trim().toLowerCase()}`)
               .test(removeDiacritics(product.label).toLowerCase())
           ))
           .slice(0, 9)
@@ -57,14 +71,14 @@ export class AddStock extends Component {
   addStock = (e) => {
     e.preventDefault();
     const {search, quantity, price, uploadImage} = this.props.newStock;
-    const {username} = this.props;
+    const {username, addNotification} = this.props;
 
     if (price.indexOf(',') !== -1) {
-      window.alert('Použi v cenách bodku!');
+      addNotification('Použi v cenách bodku!', 'warning');
       return;
     }
     if (!(search.trim() && quantity && !isNaN(price))) {
-      window.alert('Chýbajúce alebo chybné údaje!');
+      addNotification('Chýbajúce alebo chybné údaje!', 'warning');
       return;
     }
 
@@ -86,8 +100,10 @@ export class AddStock extends Component {
           })
           .then(() => {
             this.deleteForm();
+            addNotification('Pridanie tovaru úspešné.', 'success');
           }).catch((err) => {
             console.error('Error during re-stock:', err);
+            addNotification('Nebolo možné pridať tovar.', 'error');
           });
       };
       reader.readAsDataURL(file);
@@ -96,8 +112,10 @@ export class AddStock extends Component {
         .post('/addstock', {username, label: search, quantity, price, uploadImage})
         .then(() => {
           this.deleteForm();
+          addNotification('Pridanie tovaru úspešné.', 'success');
         }).catch((err) => {
           console.error('Error during re-stock:', err);
+          addNotification('Nebolo možné pridať tovar.', 'error');
         });
     }
   }
@@ -207,31 +225,41 @@ export class AddStock extends Component {
   }
 
   render() {
+    const {newStock} = this.props;
+
     return (
       <Grid fluid style={{marginTop: '20px'}}>
         <Row>
-          <Col lg={12} md={12} sm={12}>
+          <Col xs={12}>
             <Panel>
               <PageHeader>Pridať tovar</PageHeader>
               <form onSubmit={(e) => this.addStock(e)}>
                 <Row>
-                  <Col lg={6} md={6} sm={6}>
+                  <Col xs={6}>
                     {this.renderProductSearch()}
                   </Col>
-                  <Col lg={3} md={3} sm={3}>
+                  <Col xs={3}>
                     {this.renderStockForm()}
                   </Col>
-                  <Col lg={3} md={3} sm={3}>
+                  <Col xs={3}>
                     {this.renderImageUploadForm()}
                   </Col>
                 </Row>
                 <Row><div styleName={'line'} /></Row>
                 <Row>
                   <div styleName={'addStockButton'}>
-                    <Col lg={4} md={4} sm={4} />
-                    <Col lg={4} md={4} sm={4}>
-                      <FormControl type={'submit'} value={'Add stock'} />
-                      {!this.props.newStock.id && <Alert bsStyle={'warning'}>This item will be new!</Alert>}
+                    <Col xs={4} />
+                    <Col xs={4}>
+                      <FormControl
+                        type={'submit'}
+                        value={'Add stock'}
+                        disabled={!newStock.search || (!newStock.id && !newStock.uploadImage)}
+                      />
+                      {!newStock.id && (
+                        <Alert bsStyle={'warning'}>
+                          Táto vec bude nová, prosím pridaj aj obrázok.
+                        </Alert>
+                      )}
                     </Col>
                     <Col lg={4} md={4} sm={4} />
                   </div>
@@ -244,3 +272,24 @@ export class AddStock extends Component {
     );
   }
 }
+
+export default connect(
+  (state) => ({
+    username: get(state, [...PATH_SHOP, 'login', 'username'], 'No user selected'),
+    products: get(state, [...PATH_SHOP, 'products', 'data']),
+    fetchingProducts: get(state, [...PATH_SHOP, 'products', 'fetching']),
+    newStock: get(state, [...PATH_SHOP, 'newStock']),
+  }),
+  (dispatch) => bindActionCreators(
+    {
+      fetchProducts,
+      changeNewStockId,
+      changeNewStockSearch,
+      changeNewStockQuantity,
+      changeNewStockPrice,
+      changeNewStockImageCheckbox,
+      addNotification,
+    },
+    dispatch
+  )
+)(AddStock);

@@ -41,6 +41,7 @@ export function runServer() {
         <title>Sortiment</title>
         <link rel="stylesheet" href="/static/css/bootstrap.min.css">
         <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
+        <link rel="stylesheet" href="/static/css/react-spinner.css">
       </head>
       <style>
         html, body, #root {

@@ -1,9 +1,19 @@
 import React, {Component} from 'react';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
 import axios from 'axios';
 import {Grid, Row, Col, FormControl, Button, PageHeader, Panel, ControlLabel} from 'react-bootstrap';
 
+import {
+  goToPage,
+  changeRegistrationUsername,
+  changeRegistrationBalance,
+  logIn,
+} from '../actions/actions';
+import {PATH_SHOP} from '../reducers/shop';
 
-export class Registration extends Component {
+class Registration extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
@@ -77,3 +87,16 @@ export class Registration extends Component {
     );
   }
 }
+
+export default connect(
+  (state) => ({
+    username: get(state, [...PATH_SHOP, 'registration', 'username']),
+    balance: get(state, [...PATH_SHOP, 'registration', 'balance']),
+  }),
+  (dispatch) => bindActionCreators({
+    goToPage,
+    logIn,
+    changeRegistrationUsername,
+    changeRegistrationBalance,
+  }, dispatch)
+)(Registration);

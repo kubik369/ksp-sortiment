@@ -1,9 +1,15 @@
 import React, {Component} from 'react';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
 import {Grid, Row, Col} from 'react-bootstrap';
+
+import {addToCart} from '../actions/actions';
+import {PATH_SHOP} from '../reducers/shop';
 
 import './Product.css';
 
-export class Product extends Component {
+class Product extends Component {
   render() {
     const {id, productInfo, quantity, addToCart} = this.props;
     const stockLeft = productInfo.stock - quantity;
@@ -44,3 +50,11 @@ export class Product extends Component {
     );
   }
 }
+
+export default connect(
+  (state, props) => ({
+    quantity: get(state, [...PATH_SHOP, 'cart', props.id]),
+    productInfo: get(state, [...PATH_SHOP, 'products', 'data', props.id]),
+  }),
+  (dispatch) => bindActionCreators({addToCart}, dispatch)
+)(Product);

@@ -1,17 +1,26 @@
 import React, {Component} from 'react';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
 import {Grid, Row, Col, Panel} from 'react-bootstrap';
 
-import ProductC from '../containers/Product';
-import CheckoutC from '../containers/Checkout';
+import {fetchProducts} from '../actions/actions';
+import {PATH_SHOP} from '../reducers/shop';
+import Product from './Product';
+import Checkout from './Checkout';
 
-export class Sortiment extends Component {
+class Sortiment extends Component {
   componentWillMount = () => {
     this.props.fetchProducts();
   }
 
   render() {
     const products = Object.keys(this.props.products.data).map(
-      (key) => this.props.products.data[key].stock > 0 && <Col lg={4} sm={4} key={key}><ProductC id={key} /></Col>
+      (key) => (this.props.products.data[key].stock > 0) && (
+        <Col lg={4} sm={4} key={key}>
+          <Product id={key} />
+        </Col>
+      )
     );
 
     return (
@@ -26,10 +35,20 @@ export class Sortiment extends Component {
             }}
             ><Panel>{products}</Panel></Col>
           <Col lg={3} md={3} sm={3}>
-            <CheckoutC />
+            <Checkout />
           </Col>
         </Row>
       </Grid>
     );
   }
 }
+
+export default connect(
+  (state) => ({
+    products: get(state, [...PATH_SHOP, 'products']),
+  }),
+  (dispatch) => bindActionCreators(
+    {fetchProducts},
+    dispatch
+  )
+)(Sortiment);

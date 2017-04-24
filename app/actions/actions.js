@@ -21,26 +21,28 @@ import {
   CHANGE_BALANCE,
   REGISTRATION_CHANGE_USERNAME,
   REGISTRATION_CHANGE_BALANCE,
+  START_PROCESSING_PURCHASE,
+  STOP_PROCESSING_PURCHASE,
 } from '../constants/actionTypes';
 
 export function addToCart(product) {
   return {
     type: ADD_TO_CART,
-    product: product,
+    product,
   };
 }
 
 export function removeFromCart(product) {
   return {
     type: REMOVE_FROM_CART,
-    product: product,
+    product,
   };
 }
 
 export function goToPage(page) {
   return {
     type: GO_TO_PAGE,
-    page: page,
+    page,
   };
 }
 
@@ -61,7 +63,7 @@ export function changeRegistrationUsername(username) {
 export function changeRegistrationBalance(balance) {
   return {
     type: REGISTRATION_CHANGE_BALANCE,
-    balance: balance,
+    balance,
   };
 }
 
@@ -81,7 +83,7 @@ export function logOut() {
 export function changeBalance(balance) {
   return {
     type: CHANGE_BALANCE,
-    balance: balance,
+    balance,
   };
 }
 
@@ -120,10 +122,16 @@ export function fetchingProducts() {
   };
 }
 
-export function receiveProducts(products) {
+export function receiveProducts(data) {
+  const products = data.reduce((res, item) => ({...res, [item.id]: item}), {});
+  const cart = Object.values(products).reduce(
+    (cart, product) => ({...cart, [product.id]: 0}),
+    {}
+  );
   return {
     type: RECEIVED_PRODUCTS,
-    products: products.reduce((res, item) => ({...res, [item.id]: item}), {}),
+    products,
+    cart,
   };
 }
 
@@ -142,34 +150,48 @@ export function stopAddingNewStock() {
 export function changeNewStockId(id) {
   return {
     type: CHANGE_NEW_STOCK_ID,
-    id: id,
+    id,
   };
 }
 
-export function changeNewStockSearch(text) {
+export function changeNewStockSearch(search) {
   return {
     type: CHANGE_NEW_STOCK_SEARCH,
-    text: text,
+    search,
   };
 }
 
 export function changeNewStockQuantity(quantity) {
   return {
     type: CHANGE_NEW_STOCK_QUANTITY,
-    quantity: quantity,
+    quantity,
   };
 }
 
 export function changeNewStockPrice(price) {
   return {
     type: CHANGE_NEW_STOCK_PRICE,
-    price: price,
+    price,
   };
 }
 
 export function changeNewStockImageCheckbox(checkbox) {
   return {
     type: CHANGE_NEW_STOCK_IMAGE_CHECKBOX,
-    checkbox: checkbox,
+    checkbox,
+  };
+}
+
+export function startProcessingPurchase(method) {
+  return {
+    type: START_PROCESSING_PURCHASE,
+    method,
+  };
+}
+
+export function stopProcessingPurchase(method) {
+  return {
+    type: STOP_PROCESSING_PURCHASE,
+    method,
   };
 }

@@ -1,6 +1,12 @@
 import React, {Component} from 'react';
 import {Button, ControlLabel, FormControl} from 'react-bootstrap';
-import {remove as removeDiacritics} from 'diacritics'
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
+import {remove as removeDiacritics} from 'diacritics';
+
+import {startAddingNewStock, searchUsername, logIn, fetchUsers} from '../actions/actions';
+import {PATH_SHOP} from '../reducers/shop';
 
 import './Login.css';
 
@@ -60,3 +66,23 @@ export class Login extends Component {
     </div>);
   }
 }
+
+export default connect(
+  (state) => ({
+    users: get(state, [...PATH_SHOP, 'users', 'data']),
+    loggedIn: get(state, [...PATH_SHOP, 'login', 'loggedIn']),
+    search: get(state, [...PATH_SHOP, 'login', 'search']),
+    username: get(state, [...PATH_SHOP, 'login', 'username']),
+    balance: get(state, [...PATH_SHOP, 'users', 'data', get(state, [...PATH_SHOP, 'login', 'username']), 'balance'], 0),
+    fetching: get(state, [...PATH_SHOP, 'users', 'fetching']),
+  }),
+  (dispatch) => bindActionCreators(
+    {
+      searchUsername,
+      logIn,
+      fetchUsers,
+      startAddingNewStock,
+    },
+    dispatch,
+  )
+)(Login);

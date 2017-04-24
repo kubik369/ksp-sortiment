@@ -1,15 +1,15 @@
 {
   "rules": {
    "no-console": 2,
-   "no-alert": 0,
+   "no-alert": 0
   },
   "env": {
     "browser": true,
-    "node": false,
+    "node": false
   },
   "globals": {
     // Because webpack handles it.
     "process": true,
-    "require": true,
-  },
+    "require": true
+  }
 }

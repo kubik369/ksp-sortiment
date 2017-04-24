@@ -1,27 +1,31 @@
 import React, {Component} from 'react';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
 import axios from 'axios';
 import {Grid, Row, Col, FormControl, Button, PageHeader, Panel} from 'react-bootstrap';
 
-export class AddCredit extends Component {
+import {fetchUsers, changeBalance} from '../actions/actions';
+import {addNotification} from '../actions/notifications';
+import {PATH_SHOP} from '../reducers/shop';
+
+class AddCredit extends Component {
   addCredit = (e) => {
     e.preventDefault();
-    const {username, fetchUsers, balance} = this.props;
+    const {username, fetchUsers, balance, addNotification} = this.props;
 
     if (balance == null) {
-      window.alert('Neplatná hodnota!');
+      addNotification('Neplatná čiastka!', 'error');
       return;
     }
-    // eslint-disable-next-line no-alert
-    if (window.confirm(`Želáte si pridať ${balance}€ uživateľovi ${username}?`)) {
-      axios
-        .post(
-          '/credit', {username: username, credit: balance.trim()}
-        ).then(
-          (res) => fetchUsers()
-        ).catch(
-          (err) => console.error('Could not add credit', err) // eslint-disable-line no-console
-        );
-    }
+
+    axios
+      .post('/credit', {username: username, credit: balance.trim()})
+        .then((res) => fetchUsers())
+        .then((res) => addNotification(
+          `Čiastka ${balance} úspešne pridaná uživateľovi ${username}`, 'success'
+        ))
+        .catch((err) => addNotification('Chyba počas pridávania kreditu.', 'error'));
   }
 
   render() {
@@ -63,3 +67,15 @@ export class AddCredit extends Component {
     );
   }
 }
+
+export default connect(
+  (state) => ({
+    username: get(state, [...PATH_SHOP, 'login', 'username'], 'No user selected'),
+    balance: get(state, [...PATH_SHOP, 'balance'], 0),
+  }),
+  (dispatch) => bindActionCreators({
+    fetchUsers,
+    changeBalance,
+    addNotification
+  }, dispatch),
+)(AddCredit);

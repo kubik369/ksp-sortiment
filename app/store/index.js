@@ -5,37 +5,47 @@ import {
 } from 'redux';
 import thunk from 'redux-thunk';
 
-import rootReducer from '../reducers/reducers';
+import rootReducer from '../reducers';
 import {pages} from '../constants/enums/pages';
 
 const initialState = {
-  login: {
-    loggedIn: false,
-    search: '',
-    username: '',
+  shop: {
+    login: {
+      loggedIn: false,
+      search: '',
+      username: '',
+    },
+    currentPage: pages.welcome,
+    balance: '',
+    cart: {},
+    newStock: {
+      active: false,
+      id: '',
+      search: '',
+      quantity: 1,
+      price: 0,
+      uploadImage: false,
+    },
+    registration: {
+      username: '',
+      balance: 0,
+    },
+    users: {
+      fetching: false,
+      data: {},
+    },
+    products: {
+      fetching: false,
+      data: {},
+    },
+    processingPurchase: {
+      credit: false,
+      cash: false,
+    },
   },
-  currentPage: pages.welcome,
-  balance: '',
-  cart: {},
-  newStock: {
-    active: false,
-    id: '',
-    search: '',
-    quantity: 1,
-    price: 0,
-    uploadImage: false,
-  },
-  registration: {
-    username: '',
-    balance: 0,
-  },
-  users: {
-    fetching: false,
-    data: {},
-  },
-  products: {
-    fetching: false,
-    data: {},
+  notifications: {
+    message: '',
+    level: '',
   },
 };
 
