@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {get} from 'lodash';
+import {get, isNumber, toNumber} from 'lodash';
 import axios from 'axios';
 import {Grid, Row, Col, FormControl, Button, PageHeader, Panel} from 'react-bootstrap';
 
@@ -12,9 +12,10 @@ import {PATH_SHOP} from '../reducers/shop';
 class AddCredit extends Component {
   addCredit = (e) => {
     e.preventDefault();
-    const {username, fetchUsers, balance, addNotification} = this.props;
+    const {username, fetchUsers, addNotification} = this.props;
+    const balance = this.props.balance.replace(/,/, '.');
 
-    if (balance == null) {
+    if (balance === null || !isNumber(parseFloat(balance)) || toNumber(balance) === 0) {
       addNotification('Neplatná čiastka!', 'error');
       return;
     }
@@ -25,7 +26,7 @@ class AddCredit extends Component {
         .then((res) => addNotification(
           `Čiastka ${balance} úspešne pridaná uživateľovi ${username}`, 'success'
         ))
-        .catch((err) => addNotification('Chyba počas pridávania kreditu.', 'error'));
+        .catch(() => addNotification('Chyba počas pridávania kreditu.', 'error'));
   }
 
   render() {
@@ -34,12 +35,12 @@ class AddCredit extends Component {
     return (
       <Grid fluid style={{marginTop: '20px'}}>
         <Row>
-          <Col lg={8} md={8} sm={8}>
+          <Col xs={8}>
             <Panel>
               <PageHeader>Pridať kredit / vybrať hotovosť</PageHeader>
               <form onSubmit={(e) => this.addCredit(e)}>
                 <Row>
-                  <Col lg={6} md={6} sm={6}>
+                  <Col xs={6}>
                     <FormControl
                       type={'text'}
                       name={'credit'}
@@ -48,20 +49,22 @@ class AddCredit extends Component {
                       onChange={(e) => changeBalance(e.target.value)}
                       />
                   </Col>
-                  <Col lg={4} md={4} sm={4}>
-                    <Button bsStyle={'success'}
+                  <Col xs={4}>
+                    <Button
+                      bsStyle={'success'}
                       type={'submit'}
-                      disabled={isNaN(balance) || (balance == 0)}
-                      >Pridaj kredit / vyber hotovosť
+                      disabled={!isNumber(parseFloat(balance)) || (toNumber(balance) === 0)}
+                    >
+                      Pridaj kredit / vyber hotovosť
                     </Button>
                   </Col>
-                  <Col lg={2} md={2} sm={2} />
+                  <Col xs={4} />
                 </Row>
                 <p>Ak chceš vybrať hotovosť zo svojho účtu, napíš zápornú hodnotu.</p>
               </form>
             </Panel>
           </Col>
-          <Col lg={4} md={4} sm={4} />
+          <Col xs={4} />
         </Row>
       </Grid>
     );
@@ -76,6 +79,6 @@ export default connect(
   (dispatch) => bindActionCreators({
     fetchUsers,
     changeBalance,
-    addNotification
+    addNotification,
   }, dispatch),
 )(AddCredit);

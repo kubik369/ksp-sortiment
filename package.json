@@ -7,7 +7,7 @@
     "build-production": "npm run build && webpack -p",
     "start": "node index.js",
     "dev": "npm run build && DEV=1 node index.js",
-    "lint": "eslint app server"
+    "eslint": "eslint app server"
   },
   "author": "Jakub Šimo",
   "license": "MIT",
@@ -39,6 +39,10 @@
     "body-parser": "^1.15.2",
     "css-loader": "^0.26.1",
     "diacritics": "^1.3.0",
+    "eslint": "^3.19.0",
+    "eslint-plugin-babel": "^3.3.0",
+    "eslint-plugin-import": "^2.2.0",
+    "eslint-plugin-react": "^6.10.3",
     "express": "^4.13.4",
     "extract-text-webpack-plugin": "^1.0.1",
     "immutability-helper": "^2.1.2",

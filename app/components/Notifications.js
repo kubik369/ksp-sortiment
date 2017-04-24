@@ -14,10 +14,10 @@ const style = {
       height: '70px',
       fontSize: '16px',
     },
-  }
-}
+  },
+};
 
-export class Notifications extends Component {
+class Notifications extends Component {
 
   componentDidMount() {
     this.notificationSystem = this.refs.notificationSystem;

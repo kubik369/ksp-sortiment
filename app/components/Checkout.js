@@ -16,14 +16,14 @@ import {
   changeNewStockQuantity,
   logOut,
   startProcessingPurchase,
-  stopProcessingPurchase
+  stopProcessingPurchase,
 } from '../actions/actions';
 import {addNotification} from '../actions/notifications';
 import {PATH_SHOP} from '../reducers/shop';
 
 import './Checkout.css';
 
-export class Checkout extends Component {
+class Checkout extends Component {
 
   componentWillMount = () => {
     this.props.fetchUsers();
@@ -98,8 +98,6 @@ export class Checkout extends Component {
         </Row>
         <Row>
           <Col xs={12}>
-            {/* Full width buttons, see http://www.w3schools.com/bootstrap/bootstrap_button_groups.asp
-              'Justified Button Groups' example #2*/}
             <ButtonGroup justified>
               <ButtonGroup>
                 <Button bsStyle={'primary'} onClick={() => this.checkout(true)}>
@@ -115,7 +113,7 @@ export class Checkout extends Component {
           </Col>
         </Row>
       </Panel>
-    )
+    );
   }
 
   render() {
@@ -155,7 +153,11 @@ export default connect(
     cart: get(state, [...PATH_SHOP, 'cart']),
     products: get(state, [...PATH_SHOP, 'products', 'data']),
     fetchingProducts: get(state, [...PATH_SHOP, 'products', 'fetching']),
-    balance: get(state, [...PATH_SHOP, 'users', 'data', get(state, [...PATH_SHOP, 'login', 'username'], ''), 'balance'], 0),
+    balance: get(
+      state,
+      [...PATH_SHOP, 'users', 'data', get(state, [...PATH_SHOP, 'login', 'username'], ''), 'balance'],
+      0
+    ),
     newStock: get(state, [...PATH_SHOP, 'newStock']),
     processingPurchase: get(state, [...PATH_SHOP, 'processingPurchase']),
   }),
