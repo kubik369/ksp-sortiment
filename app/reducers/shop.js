@@ -41,6 +41,10 @@ export default function shopReducer(state = {}, action) {
           loggedIn: {$set: true},
           username: {$set: action.username},
         },
+        registration: {
+          username: {$set: ''},
+          balance: {$set: 0},
+        },
         currentPage: {$set: pages.store},
       });
 
@@ -71,6 +75,11 @@ export default function shopReducer(state = {}, action) {
     case AT.CHANGE_BALANCE:
       return update(state, {
         balance: {$set: action.balance},
+      });
+
+    case AT.RESET_ADD_CREDIT:
+      return update(state, {
+        balance: {$set: 0},
       });
 
     case AT.FETCHING_USERS:

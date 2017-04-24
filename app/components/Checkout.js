@@ -31,12 +31,13 @@ class Checkout extends Component {
   }
 
   checkout = (useCredit) => {
-    const {cart, username, fetchUsers, fetchProducts, logOut,
-      addNotification, startProcessingPurchase, stopProcessingPurchase} = this.props;
+    const {cart, username, fetchUsers, fetchProducts, logOut, addNotification,
+      startProcessingPurchase, stopProcessingPurchase, processingPurchase} = this.props;
     const purchaseMethod = useCredit ? 'credit' : 'cash';
 
     // empty cart
-    if (Object.values(cart).reduce((total, item) => total + item) === 0) {
+    if (Object.values(cart).reduce((total, item) => total + item) === 0
+      || processingPurchase.credit || processingPurchase.cash) {
       return;
     }
 

@@ -2,6 +2,7 @@ import db from 'sqlite';
 import Promise from 'bluebird';
 import fs from 'fs';
 import moment from 'moment';
+import {isNumber, toNumber} from 'lodash';
 
 const logger = {
   log: (message) => console.log(`[${moment().format('HH:mm:ss L')}] ${message}`),
@@ -33,7 +34,7 @@ export async function registerUser(req, res) {
     {$username: username}
   );
 
-  if (userExists || !(username && balance && !isNaN(balance))) {
+  if (userExists || !username || !isNumber(toNumber(balance))) {
     res.status(500).send();
     return;
   }
@@ -59,8 +60,9 @@ export async function addCredit(req, res) {
   const {username, credit} = req.body;
   logger.log(`Adding ${credit} to ${username}`);
 
-  if (!(username && credit && !isNaN(credit))) {
+  if (!username || !isNumber(toNumber(credit))) {
     res.status(500).send();
+    return;
   }
 
   try {
