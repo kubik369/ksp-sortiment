@@ -23,6 +23,7 @@ import {
   REGISTRATION_CHANGE_BALANCE,
   START_PROCESSING_PURCHASE,
   STOP_PROCESSING_PURCHASE,
+  RESET_ADD_CREDIT,
 } from '../constants/actionTypes';
 
 export function addToCart(product) {
@@ -84,6 +85,12 @@ export function changeBalance(balance) {
   return {
     type: CHANGE_BALANCE,
     balance,
+  };
+}
+
+export function resetAddCredit() {
+  return {
+    type: RESET_ADD_CREDIT,
   };
 }
 

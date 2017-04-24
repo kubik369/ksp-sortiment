@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {get} from 'lodash';
+import {get, isNumber, toNumber} from 'lodash';
 import axios from 'axios';
 import {Grid, Row, Col, FormControl, Button, PageHeader, Panel, ControlLabel} from 'react-bootstrap';
 
@@ -11,16 +11,17 @@ import {
   changeRegistrationBalance,
   logIn,
 } from '../actions/actions';
+import {addNotification} from '../actions/notifications';
 import {PATH_SHOP} from '../reducers/shop';
 
 class Registration extends Component {
 
   handleSubmit = (e) => {
     e.preventDefault();
-    const {username, balance, logIn} = this.props;
+    const {username, balance, logIn, addNotification} = this.props;
 
-    if (!(username && balance && !isNaN(balance))) {
-      window.alert('Chýbajúce alebo chybné údaje!');
+    if (!username || !isNumber(toNumber(balance))) {
+      addNotification('Chýbajúce alebo chybné údaje!');
       return;
     }
 
@@ -29,8 +30,7 @@ class Registration extends Component {
       .then((res) => logIn(username))
       .catch((err) => {
         console.error(`Registration failed: ${err}`);
-        // eslint-disable-next-line no-alert
-        window.alert('Niečo sa stalo, tvoje meno už je použité alebo nebolo možné dosiahnuť server.');
+        addNotification('Niečo sa stalo, tvoje meno už je použité alebo nebolo možné dosiahnuť server.', 'error');
       });
   }
 
@@ -75,7 +75,7 @@ class Registration extends Component {
                       bsStyle={'success'}
                       type={'submit'}
                       style={{marginTop: '25px'}}
-                      disabled={!(username && balance && !isNaN(balance))}
+                      disabled={!(username && balance != null && isNumber(balance))}
                     >Registrácia</Button>
                   </Col>
                 </Row>
@@ -98,5 +98,6 @@ export default connect(
     logIn,
     changeRegistrationUsername,
     changeRegistrationBalance,
+    addNotification,
   }, dispatch)
 )(Registration);

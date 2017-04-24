@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {get} from 'lodash';
+import {get, isNumber, toNumber} from 'lodash';
 import {
   Grid, Row, Col, FormControl, Button, ButtonToolbar,
   ControlLabel, Alert, Panel, PageHeader,
@@ -70,14 +70,12 @@ class AddStock extends Component {
 
   addStock = (e) => {
     e.preventDefault();
-    const {search, quantity, price, uploadImage} = this.props.newStock;
+    const {search, quantity, uploadImage} = this.props.newStock;
     const {username, addNotification} = this.props;
 
-    if (price.indexOf(',') !== -1) {
-      addNotification('Použi v cenách bodku!', 'warning');
-      return;
-    }
-    if (!(search.trim() && quantity && !isNaN(price))) {
+    const price = this.props.newStock.price.replace(/,/, '.') || null;
+
+    if (!search.trim() || !quantity || !isNumber(toNumber(price))) {
       addNotification('Chýbajúce alebo chybné údaje!', 'warning');
       return;
     }
@@ -130,8 +128,11 @@ class AddStock extends Component {
   }
 
   getNewPrice = (oldPrice, oldStock, newPrice, newStock) => {
-    const price = parseFloat(newPrice) || 0;
-    const stock = parseInt(newStock, 10) || 0;
+    if (!newPrice || !newStock) {
+      return 'N/A';
+    }
+    const price = toNumber(newPrice.replace(/,/, '.')) || 0;
+    const stock = toNumber(newStock.replace(/,/, '.')) || 0;
     const result = ((oldPrice * oldStock) + (price * stock)) / (oldStock + stock);
     return (Math.ceil(result * 20) / 20).toFixed(2);
   }

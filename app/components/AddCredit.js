@@ -5,14 +5,14 @@ import {get, isNumber, toNumber} from 'lodash';
 import axios from 'axios';
 import {Grid, Row, Col, FormControl, Button, PageHeader, Panel} from 'react-bootstrap';
 
-import {fetchUsers, changeBalance} from '../actions/actions';
+import {fetchUsers, changeBalance, resetAddCredit} from '../actions/actions';
 import {addNotification} from '../actions/notifications';
 import {PATH_SHOP} from '../reducers/shop';
 
 class AddCredit extends Component {
   addCredit = (e) => {
     e.preventDefault();
-    const {username, fetchUsers, addNotification} = this.props;
+    const {username, fetchUsers, addNotification, resetAddCredit} = this.props;
     const balance = this.props.balance.replace(/,/, '.');
 
     if (balance === null || !isNumber(parseFloat(balance)) || toNumber(balance) === 0) {
@@ -24,8 +24,12 @@ class AddCredit extends Component {
       .post('/credit', {username: username, credit: balance.trim()})
         .then((res) => fetchUsers())
         .then((res) => addNotification(
-          `Čiastka ${balance} úspešne pridaná uživateľovi ${username}`, 'success'
+          balance > 0
+          ? `Čiastka ${balance} úspešne pridaná uživateľovi ${username}`
+          : `Čiastka ${balance} úspešne odobratá od uživateľa ${username}`,
+          'success'
         ))
+        .then(resetAddCredit)
         .catch(() => addNotification('Chyba počas pridávania kreditu.', 'error'));
   }
 
@@ -80,5 +84,6 @@ export default connect(
     fetchUsers,
     changeBalance,
     addNotification,
+    resetAddCredit,
   }, dispatch),
 )(AddCredit);
