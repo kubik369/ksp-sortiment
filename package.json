@@ -7,7 +7,7 @@
     "build-production": "npm run build && webpack -p",
     "start": "node index.js",
     "dev": "npm run build && DEV=1 node index.js",
-    "eslint": "eslint app server 2> /dev/null"
+    "eslint": "eslint app server"
   },
   "author": "Jakub Šimo",
   "license": "MIT",
