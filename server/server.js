@@ -34,32 +34,35 @@ export function runServer() {
     app.use(require('webpack-hot-middleware')(compiler));
   }
 
-  app.get('/', (req, res) => res.send(`
-    <!doctype html>
-    <html>
-      <head>
-        <title>Sortiment</title>
-        <link rel="stylesheet" href="/static/css/bootstrap.min.css">
-        <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
-        <link rel="stylesheet" href="/static/css/react-spinner.css">
-      </head>
-      <style>
-        html, body, #root {
-          height: 100%;
-          margin: 0 0 0 0;
-        }
+  app.get('/', (req, res) => {
+    res.set('Content-Type', 'text/html');
+    res.send(`
+      <!doctype html>
+      <html>
+        <head>
+          <title>Sortiment</title>
+          <link rel="stylesheet" href="/static/css/bootstrap.min.css">
+          <link rel="stylesheet" href="/static/css/bootstrap-theme.min.css">
+          <link rel="stylesheet" href="/static/css/react-spinner.css">
+        </head>
+        <style>
+          html, body, #root {
+            height: 100%;
+            margin: 0 0 0 0;
+          }
 
-        #root {
-          background-image: url('/images/background.jpg');
-        }
+          #root {
+            background-image: url('/images/background.jpg');
+          }
 
-      </style>
-      <body>
-        <div id='root' />
-        <script src="/static/bundle.js"></script>
-      </body>
-    </html>
-  `));
+        </style>
+        <body>
+          <div id='root' />
+          <script src="/static/bundle.js"></script>
+        </body>
+      </html>
+    `);
+  });
   app.get('/users', getUsers);
   app.get('/products', getProducts);
 
