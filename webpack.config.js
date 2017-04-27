@@ -1,21 +1,22 @@
-var path = require('path');
-var webpack = require('webpack');
-var ExtractTextPlugin = require('extract-text-webpack-plugin');
+const path = require('path');
+const webpack = require('webpack');
+const ExtractTextPlugin = require('extract-text-webpack-plugin');
+const config = require('./config');
 
-module.exports = {
+const devConfig = {
   devtool: 'eval',
   entry: [
     'webpack-hot-middleware/client',
-    './app/index'
+    './app/index',
   ],
   output: {
     path: path.join(__dirname, 'static'),
     filename: 'bundle.js',
-    publicPath: '/static/'
+    publicPath: '/static/',
   },
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
-    new ExtractTextPlugin('style.css', { allChunks: true }),
+    new ExtractTextPlugin('style.css', {allChunks: true}),
   ],
   module: {
     loaders: [
@@ -29,8 +30,47 @@ module.exports = {
         loaders: [
           'style?sourceMap',
           'css?modules&importLoaders=1&localIdentName=[path]___[name]__[local]___[hash:base64:5]'
-        ]
-      }
-    ]
-  }
+        ],
+      },
+    ],
+  },
 };
+
+const productionConfig = {
+  entry: [
+    './app/index',
+  ],
+  output: {
+    path: path.join(__dirname, 'static'),
+    filename: 'bundle.js',
+    publicPath: '/static/',
+  },
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+    new ExtractTextPlugin('style.css', {allChunks: true}),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('production'),
+      },
+    }),
+    new webpack.optimize.UglifyJsPlugin(),
+  ],
+  module: {
+    loaders: [
+      {
+        test: /\.js$/,
+        loaders: ['babel'],
+        include: path.join(__dirname, 'app'),
+      },
+      {
+        test: /\.css$/,
+        loaders: [
+          'style?sourceMap',
+          'css?modules&importLoaders=1&localIdentName=[path]___[name]__[local]___[hash:base64:5]',
+        ],
+      },
+    ],
+  },
+};
+
+module.exports.default = config.dev ? devConfig : productionConfig;
