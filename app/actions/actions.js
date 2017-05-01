@@ -171,7 +171,7 @@ export function changeNewStockSearch(search) {
 export function changeNewStockQuantity(quantity) {
   return {
     type: CHANGE_NEW_STOCK_QUANTITY,
-    quantity,
+    quantity: quantity,
   };
 }
 

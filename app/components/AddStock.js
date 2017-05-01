@@ -1,56 +1,50 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {get, isNumber, toNumber} from 'lodash';
-import {
-  Grid, Row, Col, FormControl, Button, ButtonToolbar,
-  ControlLabel, Alert, Panel, PageHeader,
-} from 'react-bootstrap';
+import {get, isNumber, isInteger, toNumber, isFinite, toFinite} from 'lodash';
+import {Grid, Row, Col, FormControl, Button, ButtonToolbar, ControlLabel,
+  Alert, Panel, PageHeader} from 'react-bootstrap';
 import axios from 'axios';
 import {remove as removeDiacritics} from 'diacritics';
 
-import {
-  fetchProducts,
-  changeNewStockId,
-  changeNewStockSearch,
-  changeNewStockQuantity,
-  changeNewStockPrice,
-  changeNewStockImageCheckbox,
-} from '../actions/actions';
+import {fetchProducts, changeNewStockId, changeNewStockSearch, changeNewStockQuantity,
+  changeNewStockPrice, changeNewStockImageCheckbox} from '../actions/actions';
 import {addNotification} from '../actions/notifications';
 import {PATH_SHOP} from '../reducers/shop';
+import {mergeProps} from '../utils';
 
 import './AddStock.css';
 
 class AddStock extends Component {
 
   componentWillMount() {
-    this.props.fetchProducts();
+    this.props.actions.fetchProducts();
   }
 
+  renderProductButton = ({label}, i) => (
+    <Button key={i} onClick={() => this.productSearchText(label)}>
+      {label}
+    </Button>
+  )
+
   filterProducts = () => {
-    const {newStock, products} = this.props;
+    const {newStock: {search}, products} = this.props;
+    const strippedSearch = removeDiacritics(search).trim().toLowerCase();
+
+    const filteredProducts = Object.values(products)
+      .filter(({label}) => removeDiacritics(label).toLowerCase().includes(strippedSearch))
+      .slice(0, 9)
+      .map(this.renderProductButton);
 
     return (
       <ButtonToolbar>
-        {Object.values(products)
-          .filter((product) => (
-            new RegExp(`^${removeDiacritics(newStock.search).trim().toLowerCase()}`)
-              .test(removeDiacritics(product.label).toLowerCase())
-          ))
-          .slice(0, 9)
-          .map((product, i) =>
-            (<Button
-              key={i}
-              onClick={() => this.productSearchText(product.label)}
-              >{product.label}</Button>)
-        )}
+        {filteredProducts}
       </ButtonToolbar>
     );
   }
 
   productSearchText = (text) => {
-    const {changeNewStockSearch, changeNewStockId} = this.props;
+    const {changeNewStockSearch, changeNewStockId} = this.props.actions;
     const id = this.getProductId(text);
 
     changeNewStockSearch(text);
@@ -70,15 +64,22 @@ class AddStock extends Component {
 
   addStock = (e) => {
     e.preventDefault();
-    const {search, quantity, uploadImage} = this.props.newStock;
-    const {username, addNotification} = this.props;
+    const {price, search, quantity, uploadImage} = this.props.newStock;
+    const {username, actions: {addNotification}} = this.props;
 
-    const price = this.props.newStock.price.replace(/,/, '.') || null;
-
-    if (!search.trim() || !quantity || !isNumber(toNumber(price))) {
+    if (!search.trim() || !quantity || !isFinite(toFinite(price)) ||
+     !isInteger(toNumber(quantity))) {
       addNotification('Chýbajúce alebo chybné údaje!', 'warning');
       return;
     }
+
+    const data = {
+      username,
+      label: search.trim(),
+      quantity: quantity,
+      price: price,
+      uploadImage,
+    };
 
     if (uploadImage) {
       let file = e.target.image.files[0];
@@ -88,14 +89,7 @@ class AddStock extends Component {
         const image = reader.result;
 
         axios
-          .post('/addstock', {
-            username,
-            label: search.trim(),
-            quantity: quantity.trim(),
-            price: price.trim(),
-            uploadImage,
-            image,
-          })
+          .post('/addstock', {...data, image})
           .then(() => {
             this.deleteForm();
             addNotification('Pridanie tovaru úspešné.', 'success');
@@ -107,7 +101,7 @@ class AddStock extends Component {
       reader.readAsDataURL(file);
     } else {
       axios
-        .post('/addstock', {username, label: search, quantity, price, uploadImage})
+        .post('/addstock', data)
         .then(() => {
           this.deleteForm();
           addNotification('Pridanie tovaru úspešné.', 'success');
@@ -120,20 +114,18 @@ class AddStock extends Component {
 
   deleteForm = () => {
     this.productSearchText('');
-    this.props.changeNewStockPrice(0);
-    this.props.changeNewStockQuantity(1);
-    this.props.changeNewStockImageCheckbox(false);
+    this.props.actions.changeNewStockPrice(0);
+    this.props.actions.changeNewStockQuantity(1);
+    this.props.actions.changeNewStockImageCheckbox(false);
 
-    this.props.fetchProducts();
+    this.props.actions.fetchProducts();
   }
 
-  getNewPrice = (oldPrice, oldStock, newPrice, newStock) => {
-    if (!newPrice || !newStock) {
-      return 'N/A';
+  getNewPrice = ({price: oldPrice, stock: oldStock}, {price: newPrice, quantity: newStock}) => {
+    if (!isNumber(newPrice) || !isInteger(newStock)) {
+      return 0;
     }
-    const price = toNumber(newPrice.replace(/,/, '.')) || 0;
-    const stock = toNumber(newStock.replace(/,/, '.')) || 0;
-    const result = ((oldPrice * oldStock) + (price * stock)) / (oldStock + stock);
+    const result = ((oldPrice * oldStock) + (newPrice * newStock)) / (oldStock + newStock);
     return (Math.ceil(result * 20) / 20).toFixed(2);
   }
 
@@ -155,23 +147,13 @@ class AddStock extends Component {
   }
 
   renderStockForm = () => {
-    const {
-      products,
-      newStock,
-      changeNewStockQuantity,
-      changeNewStockPrice,
-    } = this.props;
+    const {products, newStock} = this.props;
+    const {changeNewStockQuantity, changeNewStockPrice} = this.props.actions;
 
     const oldPrice = newStock.id ? products[newStock.id].price : '0.00€';
-    const newPrice =
-      (newStock.id !== '')
-        ? this.getNewPrice(
-            products[newStock.id].price,
-            products[newStock.id].stock,
-            newStock.price,
-            newStock.quantity
-          )
-        : `${parseFloat(newStock.price).toFixed(2)}€`;
+    const newPrice = (newStock.id !== '')
+      ? this.getNewPrice(products[newStock.id], newStock)
+      : `${parseFloat(newStock.price).toFixed(2)}€`;
 
     return (
       <div>
@@ -180,17 +162,24 @@ class AddStock extends Component {
           type={'text'}
           value={newStock.quantity}
           placeholder={'Quantity'}
-          onChange={(e) => changeNewStockQuantity(e.target.value)}
-          />
+          onChange={({target: {value}}) =>
+            changeNewStockQuantity(isInteger(toNumber(value)) ? toNumber(value) : value)
+          }
+        />
         <ControlLabel>Cena:</ControlLabel>
         <FormControl
           type={'text'}
           value={newStock.price}
-          min={0}
-          step={0.01}
           placeholder={'Price'}
-          onChange={(e) => changeNewStockPrice(e.target.value)}
-          />
+          onChange={({target: {value}}) => {
+            const number = toNumber(value);
+            if (isFinite(number) && number.toString().length === value.length) {
+              changeNewStockPrice(number);
+            } else {
+              changeNewStockPrice(value);
+            }
+          }}
+        />
         <div>
           <p><b>Pôvodná cena:</b> {oldPrice}</p>
           <p><b>Nová cena:</b>{newPrice}</p>
@@ -200,7 +189,7 @@ class AddStock extends Component {
   }
 
   renderImageUploadForm = () => {
-    const {newStock: {uploadImage: showForm}, changeNewStockImageCheckbox} = this.props;
+    const {newStock: {uploadImage: showForm}, actions: {changeNewStockImageCheckbox}} = this.props;
 
     return (
       <div>
@@ -211,7 +200,7 @@ class AddStock extends Component {
             name={'uploadImage'}
             value={showForm}
             onChange={(e) => changeNewStockImageCheckbox(e.target.checked)}
-            />
+          />
         </label>
         {showForm &&
           <FormControl
@@ -219,7 +208,7 @@ class AddStock extends Component {
             name={'image'}
             accept={'.jpg'}
             placeholder={'Product Image'}
-            />
+          />
         }
       </div>
     );
@@ -236,15 +225,9 @@ class AddStock extends Component {
               <PageHeader>Pridať tovar</PageHeader>
               <form onSubmit={(e) => this.addStock(e)}>
                 <Row>
-                  <Col xs={6}>
-                    {this.renderProductSearch()}
-                  </Col>
-                  <Col xs={3}>
-                    {this.renderStockForm()}
-                  </Col>
-                  <Col xs={3}>
-                    {this.renderImageUploadForm()}
-                  </Col>
+                  <Col xs={6}>{this.renderProductSearch()}</Col>
+                  <Col xs={3}>{this.renderStockForm()}</Col>
+                  <Col xs={3}>{this.renderImageUploadForm()}</Col>
                 </Row>
                 <Row><div styleName={'line'} /></Row>
                 <Row>
@@ -262,7 +245,7 @@ class AddStock extends Component {
                         </Alert>
                       )}
                     </Col>
-                    <Col lg={4} md={4} sm={4} />
+                    <Col xs={4} />
                   </div>
                 </Row>
               </form>
@@ -292,5 +275,6 @@ export default connect(
       addNotification,
     },
     dispatch
-  )
+  ),
+  mergeProps
 )(AddStock);

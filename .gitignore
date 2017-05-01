@@ -1,8 +1,10 @@
-.DS_Store
 build
 static/bundle.js
 dist
 sortiment.sqlite
+images/
+
+.DS_Store
 
 # Logs
 logs
