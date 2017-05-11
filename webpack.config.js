@@ -46,7 +46,6 @@ const productionConfig = {
     publicPath: '/static/',
   },
   plugins: [
-    new webpack.HotModuleReplacementPlugin(),
     new ExtractTextPlugin('style.css', {allChunks: true}),
     new webpack.DefinePlugin({
       'process.env': {
@@ -73,4 +72,4 @@ const productionConfig = {
   },
 };
 
-module.exports.default = config.dev ? devConfig : productionConfig;
+module.exports = config.dev ? devConfig : productionConfig;

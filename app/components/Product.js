@@ -22,12 +22,12 @@ class Product extends Component {
       <div styleName={'product'}>
         <Grid fluid>
           <Row>
-            <Col lg={12} md={12} sm={12}>
+            <Col xs={12}>
               <div styleName={'label'}>{productInfo.label}</div>
             </Col>
           </Row>
           <Row>
-            <Col lg={12} md={12} sm={12}>
+            <Col xs={12}>
               <img
                 styleName={'image'}
                 src={`/images/${productInfo.label}.jpg`}
@@ -36,12 +36,10 @@ class Product extends Component {
             </Col>
           </Row>
           <Row>
-            <Col lg={12} md={12} sm={12}>
+            <Col xs={6}>
               <div styleName={'price'}>{`${productInfo.price.toFixed(2)}€`}</div>
             </Col>
-          </Row>
-          <Row>
-            <Col lg={12} md={12} sm={12}>
+            <Col xs={6}>
               <div styleName={'stock'}>{`${stockLeft}ks`}</div>
             </Col>
           </Row>
