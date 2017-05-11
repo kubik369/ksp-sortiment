@@ -3,17 +3,28 @@
     border: 1px solid black;
     border-radius: 10px;
     margin: 5px;
+    display: flex;
+    flex-direction: column;
     height: 160px;
 }
 
-.image {
-    display: block;
-    margin-top: 5px;
-    margin-left: auto;
-    margin-right: auto;
-    width: 100px;
-    height: 100px;
+.price-row {
+    display: flex;
+    justify-content: center;
+}
+
+.image-row {
+    flex: 1 1 0;
+    margin: auto;
+    min-height: 50px;
     cursor: pointer;
+    display: flex;
+    align-items: center;
+}
+
+.image {
+    max-height: 100%;
+    max-width: 100%;
 }
 
 .label {
@@ -23,11 +34,11 @@
 }
 
 .price {
-    text-align: center;
     font-size: 1.25em;
+    margin: auto;
 }
 
 .stock {
-    text-align: center;
     font-size: 1.25em;
+    margin: auto;
 }

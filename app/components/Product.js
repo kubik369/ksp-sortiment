@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import {get} from 'lodash';
-import {Grid, Row, Col} from 'react-bootstrap';
+// import {Grid, Row, Col} from 'react-bootstrap';
 
 import {addToCart} from '../actions/actions';
 import {PATH_SHOP} from '../reducers/shop';
@@ -20,30 +20,18 @@ class Product extends Component {
 
     return (
       <div styleName={'product'}>
-        <Grid fluid>
-          <Row>
-            <Col xs={12}>
-              <div styleName={'label'}>{productInfo.label}</div>
-            </Col>
-          </Row>
-          <Row>
-            <Col xs={12}>
-              <img
-                styleName={'image'}
-                src={`/images/${productInfo.label}.jpg`}
-                onClick={() => (quantity + 1 <= productInfo.stock) && addToCart(id)}
-              />
-            </Col>
-          </Row>
-          <Row>
-            <Col xs={6}>
-              <div styleName={'price'}>{`${productInfo.price.toFixed(2)}€`}</div>
-            </Col>
-            <Col xs={6}>
-              <div styleName={'stock'}>{`${stockLeft}ks`}</div>
-            </Col>
-          </Row>
-        </Grid>
+        <div styleName={'label'}>{productInfo.label}</div>
+        <div styleName={'image-row'}>
+          <img
+            styleName={'image'}
+            src={`/images/${productInfo.label}.jpg`}
+            onClick={() => (quantity + 1 <= productInfo.stock) && addToCart(id)}
+          />
+        </div>
+        <div styleName={'price-row'}>
+          <span styleName={'price'}>{`${productInfo.price.toFixed(2)}€`}</span>
+          <span styleName={'stock'}>{`${stockLeft}ks`}</span>
+        </div>
       </div>
     );
   }
