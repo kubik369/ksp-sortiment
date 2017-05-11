@@ -1,16 +1,19 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {get, isNumber, isInteger, toNumber, isFinite, toFinite} from 'lodash';
+import {get, isInteger, toNumber, isFinite, toFinite, find} from 'lodash';
 import {Grid, Row, Col, FormControl, Button, ButtonToolbar, ControlLabel,
   Alert, Panel, PageHeader} from 'react-bootstrap';
 import axios from 'axios';
 import {remove as removeDiacritics} from 'diacritics';
 
-import {fetchProducts, changeNewStockId, changeNewStockSearch, changeNewStockQuantity,
-  changeNewStockPrice, changeNewStockImageCheckbox} from '../actions/actions';
+import {changeBarcode, changeSearchText, changePrice, changeQuantity,
+  toggleImageUpload} from '../actions/newStock';
+import {loadProducts} from '../actions/shop';
 import {addNotification} from '../actions/notifications';
-import {PATH_SHOP} from '../reducers/shop';
+import {PATH_SHOP} from '../state/shop';
+import {PATH_LOGIN} from '../state/login';
+import {PATH_NEW_STOCK} from '../state/newStock';
 import {mergeProps} from '../utils';
 
 import './AddStock.css';
@@ -18,12 +21,12 @@ import './AddStock.css';
 class AddStock extends Component {
 
   componentWillMount() {
-    this.props.actions.fetchProducts();
+    this.props.actions.loadProducts();
   }
 
-  renderProductButton = ({label}, i) => (
-    <Button key={i} onClick={() => this.productSearchText(label)}>
-      {label}
+  renderProductButton = ({name, barcode}, i) => (
+    <Button key={i} onClick={() => this.props.actions.changeBarcode(barcode)}>
+      {name}
     </Button>
   )
 
@@ -32,7 +35,7 @@ class AddStock extends Component {
     const strippedSearch = removeDiacritics(search).trim().toLowerCase();
 
     const filteredProducts = Object.values(products)
-      .filter(({label}) => removeDiacritics(label).toLowerCase().includes(strippedSearch))
+      .filter(({name}) => removeDiacritics(name).toLowerCase().includes(strippedSearch))
       .slice(0, 9)
       .map(this.renderProductButton);
 
@@ -43,20 +46,14 @@ class AddStock extends Component {
     );
   }
 
-  productSearchText = (text) => {
-    const {changeNewStockSearch, changeNewStockId} = this.props.actions;
-    const id = this.getProductId(text);
-
-    changeNewStockSearch(text);
-    changeNewStockId(id || '');
-  }
-
-  getProductId = (label) => {
+  getProductBarcode = (search) => {
     const {products} = this.props;
 
     for (let product of Object.values(products)) {
-      if (label === product.label) {
-        return product.id;
+      if (search.localeCompare(product.name) === 0
+          || search.localeCompare(product.barcode) === 0
+        ) {
+        return product.barcode;
       }
     }
     return null;
@@ -64,19 +61,22 @@ class AddStock extends Component {
 
   addStock = (e) => {
     e.preventDefault();
-    const {price, search, quantity, uploadImage} = this.props.newStock;
-    const {username, actions: {addNotification}} = this.props;
+    const {price, barcode, search, quantity, uploadImage} = this.props.newStock;
+    const {userId, products, actions: {addNotification}} = this.props;
 
-    if (!search.trim() || !quantity || !isFinite(toFinite(price)) ||
-     !isInteger(toNumber(quantity))) {
+    if (!barcode || (!products[barcode] && !search)
+      || !quantity || !isFinite(toFinite(price))
+      || !isInteger(toNumber(quantity))
+    ) {
       addNotification('Chýbajúce alebo chybné údaje!', 'warning');
       return;
     }
 
     const data = {
-      username,
-      label: search.trim(),
-      quantity: quantity,
+      userId,
+      barcode,
+      name: search,
+      quantity,
       price: price,
       uploadImage,
     };
@@ -113,46 +113,74 @@ class AddStock extends Component {
   }
 
   deleteForm = () => {
-    this.productSearchText('');
-    this.props.actions.changeNewStockPrice(0);
-    this.props.actions.changeNewStockQuantity(1);
-    this.props.actions.changeNewStockImageCheckbox(false);
+    this.props.actions.changeSearchText('');
+    this.props.actions.changePrice(0);
+    this.props.actions.changeQuantity(1);
+    this.props.actions.toggleImageUpload(false);
 
-    this.props.actions.fetchProducts();
+    this.props.actions.loadProducts();
   }
 
-  getNewPrice = ({price: oldPrice, stock: oldStock}, {price: newPrice, quantity: newStock}) => {
-    if (!isNumber(newPrice) || !isInteger(newStock)) {
-      return 0;
+  getNewPrice = (
+    {price: oldPrice, stock: oldStock},
+    {price: newPrice, quantity: newStock}
+  ) => {
+    if (!isFinite(parseFloat(newPrice)) || !isInteger(newStock)) {
+      return oldPrice;
     }
-    const result = ((oldPrice * oldStock) + (newPrice * newStock)) / (oldStock + newStock);
+    const result = ((oldPrice * oldStock) +
+      (toFinite(newPrice) * newStock)) / (oldStock + newStock);
     return (Math.ceil(result * 20) / 20).toFixed(2);
   }
 
   renderProductSearch = () => {
-    const {fetchingProducts, newStock} = this.props;
+    const {fetchingProducts, newStock, products,
+      actions: {changeBarcode, changeSearchText},
+    } = this.props;
+    const chosenProductName = products[newStock.barcode]
+      ? products[newStock.barcode].name
+      : 'Nič';
+
     return (
       <div>
-        <ControlLabel>Vyber produkt</ControlLabel>
-        <FormControl
-          type={'text'}
-          value={newStock.search}
-          placeholder={'Search products'}
-          onChange={(e) => this.productSearchText(e.target.value)}
-        />
-        {!fetchingProducts && this.filterProducts()}
-        {fetchingProducts && <p>Loading Products</p>}
+        <Row>
+          <ControlLabel>Vybratý produkt</ControlLabel>
+          <div>{chosenProductName}</div>
+        </Row>
+        <Row>
+          <ControlLabel>Barcode</ControlLabel>
+          <FormControl
+            type={'text'}
+            value={newStock.barcode}
+            placeholder={'Barcode'}
+            onChange={(e) => changeBarcode(e.target.value)}
+          />
+        </Row>
+        <Row>
+          <ControlLabel>Názov</ControlLabel>
+          <FormControl
+            type={'text'}
+            value={newStock.search}
+            placeholder={'Search products'}
+            onChange={(e) => changeSearchText(e.target.value)}
+          />
+        </Row>
+        <Row>
+          <ControlLabel>Produkty</ControlLabel>
+          {!fetchingProducts && this.filterProducts()}
+          {fetchingProducts && <p>Loading Products</p>}
+        </Row>
       </div>
     );
   }
 
   renderStockForm = () => {
     const {products, newStock} = this.props;
-    const {changeNewStockQuantity, changeNewStockPrice} = this.props.actions;
+    const {changeQuantity, changePrice} = this.props.actions;
 
-    const oldPrice = newStock.id ? products[newStock.id].price : '0.00€';
-    const newPrice = (newStock.id !== '')
-      ? this.getNewPrice(products[newStock.id], newStock)
+    const oldPrice = products[newStock.barcode] ? products[newStock.barcode].price : '0.00€';
+    const newPrice = products[newStock.barcode]
+      ? this.getNewPrice(products[newStock.barcode], newStock)
       : `${parseFloat(newStock.price).toFixed(2)}€`;
 
     return (
@@ -163,7 +191,7 @@ class AddStock extends Component {
           value={newStock.quantity}
           placeholder={'Quantity'}
           onChange={({target: {value}}) =>
-            changeNewStockQuantity(isInteger(toNumber(value)) ? toNumber(value) : value)
+            changeQuantity(isInteger(toNumber(value)) ? toNumber(value) : value)
           }
         />
         <ControlLabel>Cena:</ControlLabel>
@@ -171,14 +199,7 @@ class AddStock extends Component {
           type={'text'}
           value={newStock.price}
           placeholder={'Price'}
-          onChange={({target: {value}}) => {
-            const number = toNumber(value);
-            if (isFinite(number) && number.toString().length === value.length) {
-              changeNewStockPrice(number);
-            } else {
-              changeNewStockPrice(value);
-            }
-          }}
+          onChange={({target: {value}}) => changePrice(value)}
         />
         <div>
           <p><b>Pôvodná cena:</b> {oldPrice}</p>
@@ -189,7 +210,9 @@ class AddStock extends Component {
   }
 
   renderImageUploadForm = () => {
-    const {newStock: {uploadImage: showForm}, actions: {changeNewStockImageCheckbox}} = this.props;
+    const {
+      newStock: {uploadImage: showForm}, actions: {toggleImageUpload}
+    } = this.props;
 
     return (
       <div>
@@ -199,7 +222,7 @@ class AddStock extends Component {
             type={'checkbox'}
             name={'uploadImage'}
             value={showForm}
-            onChange={(e) => changeNewStockImageCheckbox(e.target.checked)}
+            onChange={(e) => toggleImageUpload(e.target.checked)}
           />
         </label>
         {showForm &&
@@ -215,7 +238,7 @@ class AddStock extends Component {
   }
 
   render() {
-    const {newStock} = this.props;
+    const {newStock, products} = this.props;
 
     return (
       <Grid fluid style={{marginTop: '20px'}}>
@@ -237,9 +260,12 @@ class AddStock extends Component {
                       <FormControl
                         type={'submit'}
                         value={'Add stock'}
-                        disabled={!newStock.search || (!newStock.id && !newStock.uploadImage)}
+                        disabled={
+                          !newStock.search
+                            || (!newStock.barcode && !newStock.uploadImage)
+                        }
                       />
-                      {!newStock.id && (
+                      {!products[newStock.barcode] && (
                         <Alert bsStyle={'warning'}>
                           Táto vec bude nová, prosím pridaj aj obrázok.
                         </Alert>
@@ -259,19 +285,19 @@ class AddStock extends Component {
 
 export default connect(
   (state) => ({
-    username: get(state, [...PATH_SHOP, 'login', 'username'], 'No user selected'),
+    userId: get(state, [...PATH_LOGIN, 'userId'], 'No user selected'),
     products: get(state, [...PATH_SHOP, 'products', 'data']),
     fetchingProducts: get(state, [...PATH_SHOP, 'products', 'fetching']),
-    newStock: get(state, [...PATH_SHOP, 'newStock']),
+    newStock: get(state, [...PATH_NEW_STOCK]),
   }),
   (dispatch) => bindActionCreators(
     {
-      fetchProducts,
-      changeNewStockId,
-      changeNewStockSearch,
-      changeNewStockQuantity,
-      changeNewStockPrice,
-      changeNewStockImageCheckbox,
+      loadProducts,
+      changeBarcode,
+      changeSearchText,
+      changeQuantity,
+      changePrice,
+      toggleImageUpload,
       addNotification,
     },
     dispatch

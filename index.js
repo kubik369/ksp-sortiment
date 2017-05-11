@@ -25,4 +25,6 @@ app.listen(3000, function(err) {
 })
 */
 
-require('./build/server').runServer();
+const config = require('./config.js');
+
+require(config.dev ? './server/server' : './build/server').runServer();

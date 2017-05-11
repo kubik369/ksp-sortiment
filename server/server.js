@@ -1,6 +1,4 @@
 import express from 'express';
-import Promise from 'bluebird';
-import db from 'sqlite';
 import webpack from 'webpack';
 import bodyParser from 'body-parser';
 
@@ -31,7 +29,6 @@ export function runServer() {
         chunks: false,
       },
     }));
-    app.use(require('webpack-hot-middleware')(compiler));
   }
 
   app.get('/', (req, res) => {
@@ -77,12 +74,8 @@ export function runServer() {
   // redirect everything else to /
   app.get('*', (req, res) => res.redirect('/'));
 
-  Promise.resolve()
-    .then(() => db.open(`./${config.database}`, {Promise}))
-    .then(() => db.migrate())
-    .catch((err) => console.error(err.stack))
-    .finally(() => {
-      console.log(`Server running on localhost:${config.port}`); // eslint-disable-line no-console
-      app.listen(config.port);
-    });
+  app.listen(config.port, () => {
+    // eslint-disable-next-line no-console
+    console.log(`Server running on localhost:${config.port}`);
+  });
 }

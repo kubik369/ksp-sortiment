@@ -8,8 +8,6 @@ import {
   RECEIVED_USERS,
   FETCHING_PRODUCTS,
   RECEIVED_PRODUCTS,
-  START_ADDING_NEW_STOCK,
-  STOP_ADDING_NEW_STOCK,
   CHANGE_NEW_STOCK_ID,
   CHANGE_NEW_STOCK_SEARCH,
   CHANGE_NEW_STOCK_QUANTITY,
@@ -139,18 +137,6 @@ export function receiveProducts(data) {
     type: RECEIVED_PRODUCTS,
     products,
     cart,
-  };
-}
-
-export function startAddingNewStock() {
-  return {
-    type: START_ADDING_NEW_STOCK,
-  };
-}
-
-export function stopAddingNewStock() {
-  return {
-    type: STOP_ADDING_NEW_STOCK,
   };
 }
 

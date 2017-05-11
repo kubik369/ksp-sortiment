@@ -113,20 +113,6 @@ export default function shopReducer(state = {}, action) {
         },
       });
 
-    case AT.START_ADDING_NEW_STOCK:
-      return update(state, {
-        newStock: {
-          active: {$set: true},
-        },
-      });
-
-    case AT.STOP_ADDING_NEW_STOCK:
-      return update(state, {
-        newStock: {
-          active: {$set: false},
-        },
-      });
-
     case AT.CHANGE_NEW_STOCK_ID:
       return update(state, {
         newStock: {

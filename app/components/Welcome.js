@@ -4,38 +4,43 @@ import {connect} from 'react-redux';
 import {get} from 'lodash';
 import {Grid, Row, Col, Jumbotron, Button} from 'react-bootstrap';
 
-import {fetchUsers, logIn} from '../actions/actions';
-import {PATH_SHOP} from '../reducers/shop';
+import {loadUsers} from '../actions/shop';
+import {login} from '../actions/login';
+import {mergeProps} from '../utils';
+import {PATH_SHOP} from '../state/shop';
 
 import './Welcome.css';
 
 class Welcome extends Component {
 
   componentWillMount() {
-    this.props.fetchUsers();
+    this.props.actions.loadUsers();
   }
 
   render() {
-    const {users, logIn} = this.props;
+    const {users, actions: {login}} = this.props;
     const buttonStyles = ['success', 'danger', 'info', 'warning'];
 
     return (
       <Grid fluid>
         <Row>
-          <Col lg={12} md={12} sm={12} styleName={'wrapper'}>
+          <Col xs={12} styleName={'wrapper'}>
             <Jumbotron>
               <h1 styleName="title">Vitaj, hladný pocestný</h1>
               <p>
                 Ak si v našom sortimente ešte nenakupoval, prosím, zaregistruj sa. <br />
                 Ak to tu už poznáš, prihlás sa vyhľadaním a následným kliknutím na svoje meno. <br />
-                Ak si tu len na návšteve, použi prosím účet "guest".
+                Ak si tu len na návšteve, použi prosím účet
+                <Button styleName={'nameLogin'} bsStyle={buttonStyles[2]} onClick={() => login('guest')}>
+                  guest
+                </Button>
               </p>
-              {Object.values(users).map(({username}, i) => (
+              {Object.values(users).map(({id, username}, i) => (
                 <Button
-                  styleName={'nameLogin'}
                   key={i}
+                  styleName={'nameLogin'}
                   bsStyle={buttonStyles[username.charCodeAt(0) % 4]}
-                  onClick={() => logIn(username)}
+                  onClick={() => login(id)}
                 >{username}</Button>
               ))}
             </Jumbotron>
@@ -51,7 +56,8 @@ export default connect(
     users: get(state, [...PATH_SHOP, 'users', 'data']),
   }),
   (dispatch) => bindActionCreators(
-    {fetchUsers, logIn},
+    {loadUsers, login},
     dispatch
-  )
+  ),
+  mergeProps
 )(Welcome);

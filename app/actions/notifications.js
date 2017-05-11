@@ -1,11 +1,24 @@
-import {ADD_NOTIFICATION, CLEAR_NOTIFICATION} from '../constants/actionTypes';
+import update from 'immutability-helper';
+
+import {PATH_NOTIFICATIONS} from '../state/notifications';
+
 
 export const addNotification = (message, level) => ({
-  type: ADD_NOTIFICATION,
-  message,
-  level,
+  type: 'Add notification',
+  path: PATH_NOTIFICATIONS,
+  payload: {message, level},
+  reducer: (state, {message, level}) => update(state, {
+    message: {$set: message},
+    level: {$set: level},
+  }),
 });
 
 export const clearNotification = () => ({
-  type: CLEAR_NOTIFICATION,
+  type: 'Clear notification',
+  path: PATH_NOTIFICATIONS,
+  payload: {},
+  reducer: (state) => update(state, {
+    message: {$set: ''},
+    level: {$set: ''},
+  }),
 });
