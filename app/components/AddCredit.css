@@ -1,0 +1,29 @@
+.numpad-wrapper {
+  max-width: 30vw;
+  position: relative;
+  margin-top: 20px;
+}
+
+.numpad {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+}
+
+.numpad li {
+  font-size: 32px;
+  float: left;
+  list-style: none;
+  text-align: center;
+  height: 65px;
+  border: 1px solid rgb(180, 155, 155);
+  padding-top: 15px;
+  width: 33.33%;
+  -webkit-font-smoothing: antialiased;
+  -webkit-touch-callout: none;
+  -webkit-user-select: none;
+  -khtml-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}

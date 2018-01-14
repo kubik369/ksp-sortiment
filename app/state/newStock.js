@@ -10,8 +10,8 @@ export const PATH_NEW_STOCK = ['newStock'];
 export const initialState = {
   active: false,
   barcode: '',
-  search: '',
-  quantity: 1,
+  name: '',
+  quantity: 0,
   price: 0,
   uploadImage: false,
 };

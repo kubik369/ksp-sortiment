@@ -76,7 +76,9 @@ class Checkout extends Component {
     const {processingPurchase, cart, products} = this.props;
 
     const total = Object.values(products)
-      .reduce((total, product) => total + product.price * cart[product.id], 0);
+      .reduce((total, {barcode, price}) => (
+        total + price * (cart[barcode] || 0)
+      ), 0);
 
     return (
       <Panel style={{padding: 0}}>

@@ -19,7 +19,7 @@ class Sortiment extends Component {
     const products = Object.keys(this.props.products.data).map(
       (key) => (this.props.products.data[key].stock > 0) && (
         <Col xs={4} key={key}>
-          <Product id={key} />
+          <Product barcode={key} />
         </Col>
       )
     );

@@ -3,20 +3,29 @@ import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
 import {get, isFinite, toFinite} from 'lodash';
 import axios from 'axios';
-import {Grid, Row, Col, FormControl, Button, PageHeader, Panel} from 'react-bootstrap';
+import {Grid, Row, Col, FormControl, Button, Panel} from 'react-bootstrap';
 
-import {loadUsers, changeAddCreditBalance} from '../actions/shop';
+import {loadUsers} from '../actions/shop';
 import {addNotification} from '../actions/notifications';
 import {PATH_LOGIN} from '../state/login';
 import {PATH_SHOP} from '../state/shop';
 import {mergeProps} from '../utils';
 
+import './AddCredit.css';
+
 class AddCredit extends Component {
+
+  componentWillMount = () => {
+    this.state = {credit: ''};
+  }
+
   addCredit = (e) => {
     e.preventDefault();
-    const {userId, username, formBalance,
-      actions: {loadUsers, addNotification, changeAddCreditBalance}} = this.props;
-    const balance = formBalance.replace(/,/, '.');
+    const {
+      userId, username,
+      actions: {loadUsers, addNotification},
+    } = this.props;
+    const balance = this.state.credit.replace(/,/, '.');
 
     if (balance === null || !isFinite(parseFloat(balance)) || toFinite(balance) === 0) {
       addNotification('Neplatná čiastka!', 'error');
@@ -32,46 +41,79 @@ class AddCredit extends Component {
           : `Čiastka ${balance} úspešne odobratá od uživateľa ${username}`,
           'success'
         ))
-        .then(() => changeAddCreditBalance(''))
+        .then(() => this.setState({credit: ''}))
         .catch(() => addNotification('Chyba počas pridávania kreditu.', 'error'));
   }
 
-  render() {
-    const {formBalance, actions: {changeAddCreditBalance}} = this.props;
+  numpadOnClick = (key) => {
+    this.setState({credit: this.state.credit + key});
+  }
 
+  renderNumpad = () => {
+    const keys = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '.', '0', '-']
+      .map((key) => (
+        <li key={key} onClick={() => this.numpadOnClick(key)}>{key}</li>
+      ));
+
+    return (
+      <div styleName={'numpad-wrapper'}>
+        <ul styleName={'numpad'}>
+          {keys}
+          <li />
+          <li />
+          <li rel="delete" onClick={() => this.setState({credit: ''})}>
+            AC
+          </li>
+        </ul>
+      </div>
+    );
+  }
+
+  renderAddCreditForm = () => {
+    return (
+      <Panel header={'Pridať kredit / vybrať hotovosť'}>
+        <form onSubmit={this.addCredit}>
+          <Row>
+            <Col xs={3}>
+              <FormControl
+                type={'text'}
+                name={'credit'}
+                placeholder={'Kredit'}
+                value={this.state.credit}
+                onChange={({target: {value}}) => this.setState({credit: value})}
+                />
+            </Col>
+            <Col xs={4}>
+              <Button
+                bsStyle={'success'}
+                type={'submit'}
+                disabled={!/^[-]?[0-9]*\.?[0-9]{1,2}$/.test(this.state.credit)}
+              >
+                Pridaj kredit / vyber hotovosť
+              </Button>
+            </Col>
+            <Col xs={5}>
+              <p>Ak chceš vybrať hotovosť zo svojho účtu, napíš zápornú hodnotu.</p>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={5}>
+              {this.renderNumpad()}
+            </Col>
+            <Col xs={7} />
+          </Row>
+        </form>
+      </Panel>
+    );
+  }
+
+  render() {
     return (
       <Grid fluid style={{marginTop: '20px'}}>
         <Row>
-          <Col xs={8}>
-            <Panel>
-              <PageHeader>Pridať kredit / vybrať hotovosť</PageHeader>
-              <form onSubmit={(e) => this.addCredit(e)}>
-                <Row>
-                  <Col xs={6}>
-                    <FormControl
-                      type={'text'}
-                      name={'credit'}
-                      placeholder={'Kredit'}
-                      value={formBalance}
-                      onChange={(e) => changeAddCreditBalance(e.target.value)}
-                      />
-                  </Col>
-                  <Col xs={4}>
-                    <Button
-                      bsStyle={'success'}
-                      type={'submit'}
-                      disabled={!isFinite(parseFloat(formBalance)) || (toFinite(formBalance) === 0)}
-                    >
-                      Pridaj kredit / vyber hotovosť
-                    </Button>
-                  </Col>
-                  <Col xs={4} />
-                </Row>
-                <p>Ak chceš vybrať hotovosť zo svojho účtu, napíš zápornú hodnotu.</p>
-              </form>
-            </Panel>
+          <Col xs={12}>
+            {this.renderAddCreditForm()}
           </Col>
-          <Col xs={4} />
         </Row>
       </Grid>
     );
@@ -84,13 +126,11 @@ export default connect(
     return {
       userId,
       username: get(state, [...PATH_SHOP, 'users', 'data', userId, 'username'], 'Unknown'),
-      formBalance: get(state, [...PATH_SHOP, 'addCredit']),
     };
   },
   (dispatch) => bindActionCreators({
     loadUsers,
     addNotification,
-    changeAddCreditBalance,
   }, dispatch),
   mergeProps
 )(AddCredit);

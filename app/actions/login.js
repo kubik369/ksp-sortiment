@@ -2,7 +2,7 @@ import Promise from 'bluebird';
 import update from 'immutability-helper';
 import {get} from 'lodash';
 
-import {goToPage} from './shop';
+import {goToPage, emptyCart} from './shop';
 import {pages} from '../constants/enums/pages';
 import {addNotification} from './notifications';
 import {PATH_LOGIN} from '../state/login';
@@ -49,7 +49,8 @@ export const login = (userId) => (dispatch, getState) => {
   }
 };
 
-export const logout = (username) => (dispatch) => {
+export const logout = () => (dispatch) => {
   Promise.resolve(dispatch(logoutUser()))
+    .then(() => dispatch(emptyCart()))
     .then(() => dispatch(goToPage(pages.welcome)));
 };

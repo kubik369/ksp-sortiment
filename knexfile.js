@@ -6,6 +6,9 @@ module.exports = {
     connection: {
       filename: './sortiment.sqlite',
     },
+    seeds: {
+      directory: './seeds',
+    },
   },
   production: {
     client: 'sqlite3',

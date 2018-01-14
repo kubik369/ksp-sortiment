@@ -4,27 +4,35 @@ import {connect} from 'react-redux';
 import {get} from 'lodash';
 
 import {addToCart} from '../actions/shop';
-import {PATH_SHOP} from '../reducers/shop';
+import {PATH_SHOP} from '../state/shop';
+import {mergeProps} from '../utils';
 
 import './Product.css';
 
 class Product extends Component {
+  replaceMissingImage = ({target}) => {
+    target.onerror = null;
+    target.src = 'images/404.jpg';
+  }
+
   render() {
-    const {id, productInfo, quantity, addToCart} = this.props;
+    const {barcode, productInfo, quantity, actions: {addToCart}} = this.props;
     const stockLeft = productInfo.stock - quantity;
-    console.log(stockLeft, productInfo.stock, quantity);
+
     if (!productInfo.stock) {
       return null;
     }
 
     return (
       <div styleName={'product'}>
-        <div styleName={'label'}>{productInfo.label}</div>
+        <div styleName={'label'}>{productInfo.name}</div>
         <div styleName={'image-row'}>
           <img
             styleName={'image'}
-            src={`/images/${productInfo.label}.jpg`}
-            onClick={() => (quantity + 1 <= productInfo.stock) && addToCart(id)}
+            src={`/images/${barcode}.jpg`}
+            alt={'Image not found'}
+            onError={this.replaceMissingImage}
+            onClick={() => (quantity + 1 <= productInfo.stock) && addToCart(barcode)}
           />
         </div>
         <div styleName={'price-row'}>
@@ -37,9 +45,10 @@ class Product extends Component {
 }
 
 export default connect(
-  (state, {id}) => ({
-    quantity: get(state, [...PATH_SHOP, 'cart', id], 0),
-    productInfo: get(state, [...PATH_SHOP, 'products', 'data', id]),
+  (state, {barcode}) => ({
+    quantity: get(state, [...PATH_SHOP, 'cart', barcode], 0),
+    productInfo: get(state, [...PATH_SHOP, 'products', 'data', barcode]),
   }),
-  (dispatch) => bindActionCreators({addToCart}, dispatch)
+  (dispatch) => bindActionCreators({addToCart}, dispatch),
+  mergeProps
 )(Product);

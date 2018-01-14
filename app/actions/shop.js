@@ -26,12 +26,12 @@ export const removeFromCart = (product) => ({
   }),
 });
 
-export const changeAddCreditBalance = (balance) => ({
-  type: 'Change add credit balance',
+export const emptyCart = () => ({
+  type: 'Empty the cart',
   path: PATH_SHOP,
-  payload: {balance},
-  reducer: (state, {balance}) => update(state, {
-    addCredit: {$set: balance},
+  payload: {},
+  reducer: (state) => update(state, {
+    cart: {$set: {}},
   }),
 });
 

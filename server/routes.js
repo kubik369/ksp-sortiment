@@ -1,5 +1,5 @@
 import Promise from 'bluebird';
-import fs from 'fs';
+import fs from 'fs-extra';
 import moment from 'moment';
 import {isNumber, toNumber} from 'lodash';
 
@@ -10,7 +10,7 @@ const logger = {
   error: (message) => console.error(`[${moment().format('HH:mm:ss L')}] ${message}`),
 };
 
-export async function getProducts(req, res) {
+export const getProducts = async (req, res) => {
   try {
     const products = (await db('products').select())
       .reduce((all, product) => {
@@ -23,9 +23,9 @@ export async function getProducts(req, res) {
   } catch (err) {
     res.status(500).send('Could not get products');
   }
-}
+};
 
-export async function getUsers(req, res) {
+export const getUsers = async (req, res) => {
   try {
     const users = (await db('users').select())
       .reduce((all, user) => {
@@ -38,9 +38,9 @@ export async function getUsers(req, res) {
   } catch (err) {
     res.status(500).send('Could not get users');
   }
-}
+};
 
-export async function registerUser(req, res) {
+export const registerUser = async (req, res) => {
   const {username, isic, balance} = req.body;
   const userExists = await db('users').where({username}).select();
 
@@ -65,9 +65,9 @@ export async function registerUser(req, res) {
     logger.error(`Error during registration of user ${username}. Stack trace: ${err}`);
     res.status(500).send();
   }
-}
+};
 
-export async function addCredit(req, res) {
+export const addCredit = async (req, res) => {
   const {userId, credit} = req.body;
   logger.log(`Adding ${credit} to user with id ${userId}`);
 
@@ -87,9 +87,9 @@ export async function addCredit(req, res) {
     logger.error('Credit adding failed');
     res.status(500).send();
   }
-}
+};
 
-export async function buy(req, res) {
+export const buy = async (req, res) => {
   const {cart, userId, useCredit} = req.body;
 
   if (!cart || !userId) {
@@ -99,7 +99,7 @@ export async function buy(req, res) {
 
   const products = await db('products').select()
     .reduce((res, item) => ({...res, [item.barcode]: item}), {});
-  console.log('PRODUCTS', products);
+
   for (let product of Object.values(products)) {
     if (cart[product.barcode]) {
       if (cart[product.barcode] > product.stock) {
@@ -113,9 +113,8 @@ export async function buy(req, res) {
   }
 
   const total = Object.values(products).reduce(
-    (total, {barcode, price}) => total + price * cart[barcode], 0
+    (total, {barcode, price}) => total + price * (cart[barcode] || 0), 0
   );
-  console.log('TOTAL', total);
 
   try {
     // update all the bought stock
@@ -140,62 +139,104 @@ export async function buy(req, res) {
     logger.error(`Error during buying process. Stack trace: ${err}`);
     res.status(500).send();
   }
-}
+};
 
-function getNewPrice(oldPrice, oldStock, newPrice, newStock) {
-  newPrice = parseFloat(newPrice) || 0;
-  newStock = parseInt(newStock, 10) || 0;
+const getNewPrice = (oldPrice, oldStock, newPrice, newStock) => {
+  // parse the values given into numbers
+  newPrice = /^[0-9]*\.?[0-9]{1,2}$/.test(newPrice) ? parseFloat(newPrice) : 0;
+  newStock = /^[1-9][0-9]*$/.test(newStock) ? parseInt(newStock, 10) : 0;
+
+  // calculate new price of all the stock
   const price = ((oldPrice * oldStock) + (newPrice * newStock)) / (oldStock + newStock);
-  return (Math.ceil(price * 20) / 20).toFixed(2);
-}
 
-export async function addStock(req, res) {
-  const {userId, barcode, name, quantity, price, uploadImage} = req.body;
+  // round to 2 decimal places
+  return (Math.ceil(price * 20) / 20).toFixed(2);
+};
+
+const amountAndPriceValid = (quantity, price) => {
+  const isQuantityInteger = /^[1-9][0-9]*$/.test(quantity);
+  const isPriceFloat = /^[0-9]*\.?[0-9]{1,2}$/.test(price);
+
+  return isQuantityInteger && isPriceFloat;
+};
+
+export const addStock = async (req, res) => {
+  try {
+    const {barcode, quantity, price} = req.body;
+    // get the product from database
+    const [product] = await db('products').where({barcode});
+
+    if (!product || barcode !== product.barcode) {
+      await addNewStock(req, res);
+      return;
+    }
+
+    const newPrice = getNewPrice(product.price, product.stock, price, quantity);
+
+    await db('products')
+      .where({barcode})
+      .update({
+        stock: db.raw(`stock + ${quantity}`),
+        price: newPrice,
+      });
+    res.status(200).send();
+  } catch (err) {
+    logger.error(`Error during re-stocking ${err}`);
+    res.status(500).send();
+  }
+};
+
+const addNewStock = async (req, res) => {
+  const {userId, barcode, name, quantity, price} = req.body;
 
   console.log(userId, barcode, name, quantity, price);
-  if (!(userId && barcode && quantity && price)) {
+  if (
+    // information missing
+    !(userId && barcode && quantity && price)
+    || !amountAndPriceValid(quantity, price)
+  ) {
     res.status(500).send();
     return;
   }
 
-  if (uploadImage) {
-    fs.writeFile(
-      `./images/${barcode}.jpg`,
-      new Buffer(req.body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64'),
-      (err) => logger.error(err)
-    );
+  try {
+    await db('products').insert({barcode, name, price, stock: quantity});
+    res.status(200).send();
+  } catch (err) {
+    logger.error(`Error during re-stocking ${err}`);
+    res.status(500).send();
   }
+};
 
-  const [product] = await db('products').where({barcode}).select('price', 'stock');
+export const renameProduct = async (req, res) => {
+  try {
+    const {barcode, name} = req.body;
 
-  if (product) {
-    const newPrice = getNewPrice(product.price, product.stock, price, quantity);
+    await db('products')
+      .where({barcode})
+      .update({name});
 
-    try {
-      await db('products')
-        .where({barcode})
-        .update({
-          stock: db.raw(`stock + ${quantity}`),
-          price: newPrice,
-        });
-      res.status(200).send();
-    } catch (err) {
-      logger.error(`Error during re-stocking ${err}`);
-      res.status(500).send();
-    }
-  } else {
-    try {
-      await db('products')
-        .insert({
-          barcode,
-          name,
-          price,
-          stock: quantity,
-        });
-      res.status(200).send();
-    } catch (err) {
-      logger.error(`Error during re-stocking ${err}`);
-      res.status(500).send();
-    }
+    res.status(200).send();
+  } catch (err) {
+    logger.error(`Error during product renaming.\n ${err}`);
+    res.status(500).send();
   }
-}
+};
+
+export const uploadImage = async (req, res) => {
+  try {
+    const {body: {barcode}, file: {path: tempImagePath}} = req;
+    const [product] = await db('products').where({barcode});
+
+    if (!product) {
+      res.status(500).send();
+      await fs.remove(tempImagePath);
+      return;
+    }
+    await fs.move(tempImagePath, `./images/${barcode}.jpg`, {overwrite: true});
+    res.status(200).send();
+  } catch (err) {
+    logger.error(`Error during re-stocking ${err}`);
+    res.status(500).send();
+  }
+};

@@ -1,14 +1,16 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {get, isInteger, toNumber, isFinite, toFinite, find} from 'lodash';
-import {Grid, Row, Col, FormControl, Button, ButtonToolbar, ControlLabel,
-  Alert, Panel, PageHeader} from 'react-bootstrap';
+import {get, isInteger, toNumber, isFinite, toFinite} from 'lodash';
+import {Grid, Row, Col, FormControl, ControlLabel,
+  Panel, InputGroup, FormGroup, Button} from 'react-bootstrap';
 import axios from 'axios';
-import {remove as removeDiacritics} from 'diacritics';
 
-import {changeBarcode, changeSearchText, changePrice, changeQuantity,
-  toggleImageUpload} from '../actions/newStock';
+import ProductImageUploadForm from './ProductImageUploadForm';
+
+import {
+  changeBarcode, changePrice, changeQuantity, changeName,
+} from '../actions/newStock';
 import {loadProducts} from '../actions/shop';
 import {addNotification} from '../actions/notifications';
 import {PATH_SHOP} from '../state/shop';
@@ -24,99 +26,92 @@ class AddStock extends Component {
     this.props.actions.loadProducts();
   }
 
-  renderProductButton = ({name, barcode}, i) => (
-    <Button key={i} onClick={() => this.props.actions.changeBarcode(barcode)}>
-      {name}
-    </Button>
-  )
+  amountAndPriceFormValid = () => {
+    const {newStock: {quantity, price}} = this.props;
+    const isQuantityInteger = /^[1-9][0-9]*$/.test(quantity);
+    const isPriceFloat = /^[0-9]*\.?[0-9]{1,2}$/.test(price);
 
-  filterProducts = () => {
-    const {newStock: {search}, products} = this.props;
-    const strippedSearch = removeDiacritics(search).trim().toLowerCase();
+    return isQuantityInteger && isPriceFloat;
+  }
 
-    const filteredProducts = Object.values(products)
-      .filter(({name}) => removeDiacritics(name).toLowerCase().includes(strippedSearch))
-      .slice(0, 9)
-      .map(this.renderProductButton);
+  isFormValid = () => {
+    const {newStock: {barcode, name}, products} = this.props;
 
     return (
-      <ButtonToolbar>
-        {filteredProducts}
-      </ButtonToolbar>
+      barcode.length > 0 && this.amountAndPriceFormValid() && (
+        // existing product
+        (barcode in products && name.length === 0)
+        // new product
+        || (name.length > 0 && /^[0-9]+$/.test(barcode))
+      )
     );
   }
 
-  getProductBarcode = (search) => {
+  isRenameValid = () => {
+    const {price, barcode, name, quantity} = this.props.newStock;
     const {products} = this.props;
 
-    for (let product of Object.values(products)) {
-      if (search.localeCompare(product.name) === 0
-          || search.localeCompare(product.barcode) === 0
-        ) {
-        return product.barcode;
-      }
-    }
-    return null;
+    return barcode in products && name.length &&
+      name !== products[barcode].name && price === 0 && quantity === 0;
   }
 
   addStock = (e) => {
     e.preventDefault();
-    const {price, barcode, search, quantity, uploadImage} = this.props.newStock;
+    const {price, barcode, name, quantity} = this.props.newStock;
     const {userId, products, actions: {addNotification}} = this.props;
 
-    if (!barcode || (!products[barcode] && !search)
-      || !quantity || !isFinite(toFinite(price))
-      || !isInteger(toNumber(quantity))
-    ) {
+    if (!this.isFormValid()) {
       addNotification('Chýbajúce alebo chybné údaje!', 'warning');
       return;
     }
 
-    const data = {
-      userId,
-      barcode,
-      name: search,
-      quantity,
-      price: price,
-      uploadImage,
-    };
+    const data = {userId, barcode, quantity, price};
 
-    if (uploadImage) {
-      let file = e.target.image.files[0];
-      let reader = new FileReader();
-
-      reader.onloadend = () => {
-        const image = reader.result;
-
-        axios
-          .post('/addstock', {...data, image})
-          .then(() => {
-            this.deleteForm();
-            addNotification('Pridanie tovaru úspešné.', 'success');
-          }).catch((err) => {
-            console.error('Error during re-stock:', err);
-            addNotification('Nebolo možné pridať tovar.', 'error');
-          });
-      };
-      reader.readAsDataURL(file);
-    } else {
-      axios
-        .post('/addstock', data)
-        .then(() => {
-          this.deleteForm();
-          addNotification('Pridanie tovaru úspešné.', 'success');
-        }).catch((err) => {
-          console.error('Error during re-stock:', err);
-          addNotification('Nebolo možné pridať tovar.', 'error');
-        });
+    if (!(barcode in products)) {
+      data.name = name;
     }
+
+    axios
+      .post('/addStock', data)
+      .then(() => {
+        this.deleteForm();
+        addNotification('Pridanie tovaru úspešné.', 'success');
+      }).catch((err) => {
+        console.error('Error during re-stock:', err);
+        addNotification('Nebolo možné pridať tovar.', 'error');
+      });
+  }
+
+  renameProduct = (e) => {
+    e.preventDefault();
+    const {
+      newStock: {barcode, name}, userId,
+      actions: {addNotification},
+    } = this.props;
+
+    if (!this.isRenameValid()) {
+      addNotification('Chýbajúce alebo chybné údaje!', 'warning');
+      return;
+    }
+
+    const data = {barcode, name, userId};
+
+    axios
+      .post('/renameProduct', data)
+      .then(() => {
+        this.deleteForm();
+        addNotification('Premenovanie tovaru úspešné.', 'success');
+      }).catch((err) => {
+        console.error('Error during product renaming:', err);
+        addNotification('Nebolo možné premenovať tovar.', 'error');
+      });
   }
 
   deleteForm = () => {
-    this.props.actions.changeSearchText('');
+    this.props.actions.changeBarcode('');
+    this.props.actions.changeName('');
     this.props.actions.changePrice(0);
-    this.props.actions.changeQuantity(1);
-    this.props.actions.toggleImageUpload(false);
+    this.props.actions.changeQuantity(0);
 
     this.props.actions.loadProducts();
   }
@@ -133,149 +128,155 @@ class AddStock extends Component {
     return (Math.ceil(result * 20) / 20).toFixed(2);
   }
 
-  renderProductSearch = () => {
-    const {fetchingProducts, newStock, products,
-      actions: {changeBarcode, changeSearchText},
-    } = this.props;
-    const chosenProductName = products[newStock.barcode]
-      ? products[newStock.barcode].name
-      : 'Nič';
-
-    return (
-      <div>
-        <Row>
-          <ControlLabel>Vybratý produkt</ControlLabel>
-          <div>{chosenProductName}</div>
-        </Row>
-        <Row>
-          <ControlLabel>Barcode</ControlLabel>
-          <FormControl
-            type={'text'}
-            value={newStock.barcode}
-            placeholder={'Barcode'}
-            onChange={(e) => changeBarcode(e.target.value)}
-          />
-        </Row>
-        <Row>
-          <ControlLabel>Názov</ControlLabel>
-          <FormControl
-            type={'text'}
-            value={newStock.search}
-            placeholder={'Search products'}
-            onChange={(e) => changeSearchText(e.target.value)}
-          />
-        </Row>
-        <Row>
-          <ControlLabel>Produkty</ControlLabel>
-          {!fetchingProducts && this.filterProducts()}
-          {fetchingProducts && <p>Loading Products</p>}
-        </Row>
-      </div>
-    );
-  }
-
-  renderStockForm = () => {
-    const {products, newStock} = this.props;
-    const {changeQuantity, changePrice} = this.props.actions;
-
-    const oldPrice = products[newStock.barcode] ? products[newStock.barcode].price : '0.00€';
-    const newPrice = products[newStock.barcode]
-      ? this.getNewPrice(products[newStock.barcode], newStock)
-      : `${parseFloat(newStock.price).toFixed(2)}€`;
-
-    return (
-      <div>
-        <ControlLabel>Počet:</ControlLabel>
+  renderBarcodeAndNameInput = () => (
+    <Row>
+      <Col xs={12}>
+        <ControlLabel>Barcode</ControlLabel>
         <FormControl
           type={'text'}
-          value={newStock.quantity}
-          placeholder={'Quantity'}
-          onChange={({target: {value}}) =>
-            changeQuantity(isInteger(toNumber(value)) ? toNumber(value) : value)
+          value={this.props.newStock.barcode}
+          placeholder={'Barcode'}
+          onChange={
+            ({target: {value}}) => this.props.actions.changeBarcode(value)
           }
         />
-        <ControlLabel>Cena:</ControlLabel>
+      </Col>
+      <Col xs={12}>
+        <ControlLabel>Názov</ControlLabel>
         <FormControl
           type={'text'}
-          value={newStock.price}
-          placeholder={'Price'}
-          onChange={({target: {value}}) => changePrice(value)}
+          value={this.props.newStock.name}
+          placeholder={'Názov'}
+          onChange={
+            ({target: {value}}) => this.props.actions.changeName(value)
+          }
         />
-        <div>
-          <p><b>Pôvodná cena:</b> {oldPrice}</p>
-          <p><b>Nová cena:</b>{newPrice}</p>
-        </div>
-      </div>
+      </Col>
+    </Row>
+  )
+
+  renderAddStockForm = () => {
+    const {newStock: {barcode, price}, products} = this.props;
+
+    const oldPrice = barcode in products ? products[barcode].price : '0.00€';
+    const newPrice = barcode in products
+      ? this.getNewPrice(products[barcode], this.props.newStock)
+      : `${parseFloat(price).toFixed(2)}€`;
+
+    return (
+      <Panel header={'Doplniť tovar'}>
+        <Row>
+          <form onSubmit={this.addStock}>
+            <Col xs={3}>
+              {this.renderBarcodeAndNameInput()}
+            </Col>
+            <Col xs={5}>
+              {this.renderAmountAndPriceForm()}
+            </Col>
+            <Col xs={4}>
+              <p><b>Pôvodná cena: </b>{oldPrice}</p>
+              <p><b>Nová cena: </b>{newPrice}</p>
+              <FormControl
+                type={'submit'}
+                value={'Add stock'}
+                disabled={!this.isFormValid()}
+              />
+            </Col>
+          </form>
+        </Row>
+        <Row>
+          <Col xs={3}>
+            <form onSubmit={this.renameProduct}>
+              <FormControl
+                type={'submit'}
+                value={'Premenovať'}
+                disabled={!this.isRenameValid()}
+              />
+            </form>
+          </Col>
+          <Col xs={9} />
+        </Row>
+      </Panel>
     );
   }
 
-  renderImageUploadForm = () => {
-    const {
-      newStock: {uploadImage: showForm}, actions: {toggleImageUpload}
-    } = this.props;
+  addQuantity = (amount) => {
+    this.props.actions.changeQuantity(this.props.newStock.quantity + amount);
+  }
+
+  addPrice = (money) => {
+    this.props.actions.changePrice(
+      (parseFloat(this.props.newStock.price) + money).toFixed(2)
+    );
+  }
+
+  renderAmountAndPriceForm = () => {
+    const {newStock: {quantity, price}} = this.props;
+    const {changeQuantity, changePrice} = this.props.actions;
 
     return (
-      <div>
-        <label>
-          Upload an image?
-          <input
-            type={'checkbox'}
-            name={'uploadImage'}
-            value={showForm}
-            onChange={(e) => toggleImageUpload(e.target.checked)}
-          />
-        </label>
-        {showForm &&
-          <FormControl
-            type={'file'}
-            name={'image'}
-            accept={'.jpg'}
-            placeholder={'Product Image'}
-          />
-        }
+      <div styleName={'amountPriceForm'}>
+        <ControlLabel>Počet:</ControlLabel>
+        <FormGroup>
+          <InputGroup>
+            <InputGroup.Button>
+              <Button onClick={() => this.addQuantity(-10)}>-10</Button>
+              <Button onClick={() => this.addQuantity(-1)}>-1</Button>
+            </InputGroup.Button>
+            <FormControl
+              type={'number'}
+              min={0}
+              value={quantity}
+              placeholder={'Quantity'}
+              onChange={({target: {value}}) =>
+                changeQuantity(
+                  isInteger(toNumber(value)) ? toNumber(value) : value
+                )
+              }
+            />
+            <InputGroup.Button>
+              <Button onClick={() => this.addQuantity(1)}>+1</Button>
+              <Button onClick={() => this.addQuantity(10)}>+10</Button>
+            </InputGroup.Button>
+          </InputGroup>
+        </FormGroup>
+
+        <ControlLabel>Cena:</ControlLabel>
+        <FormGroup>
+          <InputGroup>
+            <InputGroup.Button>
+              <Button onClick={() => this.addPrice(-0.1)}>-10c</Button>
+              <Button onClick={() => this.addPrice(-0.05)}>-5c</Button>
+            </InputGroup.Button>
+            <FormControl
+              type={'number'}
+              step={0.01}
+              min={0}
+              value={price}
+              placeholder={'Price'}
+              onChange={
+                ({target: {value}}) => changePrice(value.replace(',', '.'))
+              }
+            />
+            <InputGroup.Button>
+              <Button onClick={() => this.addPrice(0.05)}>+5c</Button>
+              <Button onClick={() => this.addPrice(0.1)}>+10c</Button>
+            </InputGroup.Button>
+          </InputGroup>
+        </FormGroup>
       </div>
     );
   }
 
   render() {
-    const {newStock, products} = this.props;
-
     return (
       <Grid fluid style={{marginTop: '20px'}}>
         <Row>
           <Col xs={12}>
-            <Panel>
-              <PageHeader>Pridať tovar</PageHeader>
-              <form onSubmit={(e) => this.addStock(e)}>
-                <Row>
-                  <Col xs={6}>{this.renderProductSearch()}</Col>
-                  <Col xs={3}>{this.renderStockForm()}</Col>
-                  <Col xs={3}>{this.renderImageUploadForm()}</Col>
-                </Row>
-                <Row><div styleName={'line'} /></Row>
-                <Row>
-                  <div styleName={'addStockButton'}>
-                    <Col xs={4} />
-                    <Col xs={4}>
-                      <FormControl
-                        type={'submit'}
-                        value={'Add stock'}
-                        disabled={
-                          !newStock.search
-                            || (!newStock.barcode && !newStock.uploadImage)
-                        }
-                      />
-                      {!products[newStock.barcode] && (
-                        <Alert bsStyle={'warning'}>
-                          Táto vec bude nová, prosím pridaj aj obrázok.
-                        </Alert>
-                      )}
-                    </Col>
-                    <Col xs={4} />
-                  </div>
-                </Row>
-              </form>
-            </Panel>
+            {this.renderAddStockForm()}
+          </Col>
+          <Col xs={12}>
+            <ProductImageUploadForm />
           </Col>
         </Row>
       </Grid>
@@ -286,18 +287,17 @@ class AddStock extends Component {
 export default connect(
   (state) => ({
     userId: get(state, [...PATH_LOGIN, 'userId'], 'No user selected'),
-    products: get(state, [...PATH_SHOP, 'products', 'data']),
-    fetchingProducts: get(state, [...PATH_SHOP, 'products', 'fetching']),
-    newStock: get(state, [...PATH_NEW_STOCK]),
+    products: get(state, [...PATH_SHOP, 'products', 'data'], {}),
+    fetchingProducts: get(state, [...PATH_SHOP, 'products', 'fetching'], false),
+    newStock: get(state, [...PATH_NEW_STOCK], {}),
   }),
   (dispatch) => bindActionCreators(
     {
       loadProducts,
       changeBarcode,
-      changeSearchText,
+      changeName,
       changeQuantity,
       changePrice,
-      toggleImageUpload,
       addNotification,
     },
     dispatch

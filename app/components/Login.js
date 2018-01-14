@@ -86,7 +86,7 @@ export default connect(
       username,
       balance,
       fetching: get(state, [...PATH_SHOP, 'users', 'fetching']),
-    }
+    };
   },
   (dispatch) => bindActionCreators(
     {searchUsername, login, loadUsers},

@@ -11,12 +11,12 @@ export const changeBarcode = (barcode) => ({
   }),
 });
 
-export const changeSearchText = (search) => ({
-  type: 'Change new stock search text',
+export const changeName = (name) => ({
+  type: 'Change new stock name',
   path: PATH_NEW_STOCK,
-  payload: {search},
-  reducer: (state, {search}) => update(state, {
-    search: {$set: search},
+  payload: {name},
+  reducer: (state, {name}) => update(state, {
+    name: {$set: name},
   }),
 });
 
@@ -35,14 +35,5 @@ export const changeQuantity = (quantity) => ({
   payload: {quantity},
   reducer: (state, {quantity}) => update(state, {
     quantity: {$set: quantity},
-  }),
-});
-
-export const toggleImageUpload = (checkbox) => ({
-  type: 'Change new stock image upload checkbox',
-  path: PATH_NEW_STOCK,
-  payload: {checkbox},
-  reducer: (state, {checkbox}) => update(state, {
-    uploadImage: {$set: checkbox},
   }),
 });
