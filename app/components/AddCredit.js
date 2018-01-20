@@ -71,7 +71,7 @@ class AddCredit extends Component {
 
   renderAddCreditForm = () => {
     return (
-      <Panel header={'Pridať kredit / vybrať hotovosť'}>
+      <Panel header={<h1><b>Pridať kredit / vybrať hotovosť</b></h1>}>
         <form onSubmit={this.addCredit}>
           <Row>
             <Col xs={3}>

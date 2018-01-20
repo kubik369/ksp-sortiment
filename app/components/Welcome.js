@@ -31,7 +31,11 @@ class Welcome extends Component {
                 Ak si v našom sortimente ešte nenakupoval, prosím, zaregistruj sa. <br />
                 Ak to tu už poznáš, prihlás sa vyhľadaním a následným kliknutím na svoje meno. <br />
                 Ak si tu len na návšteve, použi prosím účet
-                <Button styleName={'nameLogin'} bsStyle={buttonStyles[2]} onClick={() => login('guest')}>
+                <Button
+                  styleName={'nameLogin'}
+                  bsStyle={buttonStyles[2]}
+                  onClick={() => login(1)}
+                >
                   guest
                 </Button>
               </p>

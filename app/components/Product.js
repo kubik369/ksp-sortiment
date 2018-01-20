@@ -25,7 +25,12 @@ class Product extends Component {
 
     return (
       <div styleName={'product'}>
-        <div styleName={'label'}>{productInfo.name}</div>
+        <div
+          styleName={'label'}
+          style={{fontSize: productInfo.name.length > 15 ? '0.75em' : '1em'}}
+        >
+          {productInfo.name}
+        </div>
         <div styleName={'image-row'}>
           <img
             styleName={'image'}

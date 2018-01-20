@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import {Button, ControlLabel, FormControl} from 'react-bootstrap';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {get} from 'lodash';
+import {get, findKey} from 'lodash';
 import {remove as removeDiacritics} from 'diacritics';
 
 import {loadUsers} from '../actions/shop';
@@ -10,6 +10,7 @@ import {login, searchUsername} from '../actions/login';
 import {PATH_SHOP} from '../state/shop';
 import {PATH_LOGIN} from '../state/login';
 import {mergeProps} from '../utils';
+import BarcodeInput from './BarcodeInput';
 
 import './Login.css';
 
@@ -38,6 +39,13 @@ class Login extends Component {
       ));
   }
 
+  isBarcodeISIC = (barcode) => findKey(
+    this.props.users,
+    ({isic}) => isic === barcode
+  )
+
+  loginWithISIC = (isic) => this.props.actions.login(this.isBarcodeISIC(isic))
+
   render() {
     const {loggedIn, search, username, balance, fetching,
       actions: {searchUsername}} = this.props;
@@ -45,6 +53,11 @@ class Login extends Component {
     return (<div styleName={'login'}>
       {!loggedIn &&
         <form>
+          <BarcodeInput
+            isBarcodeValid={this.isBarcodeISIC}
+            action={this.loginWithISIC}
+            placeholder={'ISIC'}
+          />
           <FormControl
             type={'text'}
             name={'username'}
@@ -53,17 +66,18 @@ class Login extends Component {
             autoComplete={'off'}
             onChange={(e) => searchUsername(e.target.value)}
           />
-          {!fetching && this.filterUsers()}
-          {fetching && <p>Loading</p>}
+          {fetching ? <p>Loading</p> : this.filterUsers()}
         </form>
       }
       {loggedIn &&
-        <div>
+        <div styleName={'userInfo'}>
           <div>
-            <ControlLabel>Prihlásený:</ControlLabel>{username}
+            <ControlLabel>Prihlásený</ControlLabel>
+            <p>{username}</p>
           </div>
           <div>
-            <ControlLabel>Zostatok na účte:</ControlLabel> {balance.toFixed(2)}€
+            <ControlLabel>Zostatok na účte</ControlLabel>
+            <p>{balance.toFixed(2)}€</p>
           </div>
         </div>
       }

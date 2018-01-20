@@ -164,7 +164,7 @@ class AddStock extends Component {
       : `${parseFloat(price).toFixed(2)}€`;
 
     return (
-      <Panel header={'Doplniť tovar'}>
+      <Panel header={<h1><b>Doplniť tovar</b></h1>}>
         <Row>
           <form onSubmit={this.addStock}>
             <Col xs={3}>
@@ -246,7 +246,7 @@ class AddStock extends Component {
           <InputGroup>
             <InputGroup.Button>
               <Button onClick={() => this.addPrice(-0.1)}>-10c</Button>
-              <Button onClick={() => this.addPrice(-0.05)}>-5c</Button>
+              <Button onClick={() => this.addPrice(-0.01)}>-1c</Button>
             </InputGroup.Button>
             <FormControl
               type={'number'}
@@ -259,7 +259,7 @@ class AddStock extends Component {
               }
             />
             <InputGroup.Button>
-              <Button onClick={() => this.addPrice(0.05)}>+5c</Button>
+              <Button onClick={() => this.addPrice(0.01)}>+1c</Button>
               <Button onClick={() => this.addPrice(0.1)}>+10c</Button>
             </InputGroup.Button>
           </InputGroup>

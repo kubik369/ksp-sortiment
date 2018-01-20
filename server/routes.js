@@ -44,13 +44,13 @@ export const registerUser = async (req, res) => {
   const {username, isic, balance} = req.body;
   const userExists = await db('users').where({username}).select();
 
-  if (userExists.length || !username || !isNumber(toNumber(balance))) {
+  if (userExists.length || !username || !/^[0-9]*\.?[0-9]{1,2}$/.test(balance)) {
     res.status(500).send();
     return;
   }
 
   try {
-    await db('users')
+    const [user] = await db('users')
       .insert({
         username,
         balance,
@@ -60,7 +60,8 @@ export const registerUser = async (req, res) => {
     logger.log(
       `Registered user ${username} with initial balance of ${balance} and ISIC number ${isic}`
     );
-    res.status(200).send();
+
+    res.json({user});
   } catch (err) {
     logger.error(`Error during registration of user ${username}. Stack trace: ${err}`);
     res.status(500).send();

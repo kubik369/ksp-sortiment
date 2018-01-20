@@ -2,7 +2,7 @@ exports.up = async (knex, Promise) => {
   await knex.schema.createTable('users', (t) => {
     t.increments();
     t.string('username');
-    t.string('isic');
+    t.string('isic').defaultTo('xxx');
     t.float('balance');
   });
   await knex.schema.createTable('products', (t) => {
@@ -13,6 +13,7 @@ exports.up = async (knex, Promise) => {
   });
 };
 
-exports.down = (knex, Promise) => {
-
+exports.down = async (knex, Promise) => {
+  await knex.schema.dropTable('users');
+  await knex.schema.dropTable('products');
 };

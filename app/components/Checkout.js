@@ -81,12 +81,7 @@ class Checkout extends Component {
       ), 0);
 
     return (
-      <Panel style={{padding: 0}}>
-        <Row>
-          <Col xs={12}>
-            <h2>Checkout</h2>
-          </Col>
-        </Row>
+      <Panel header={<h2><b>Checkout</b></h2>} style={{padding: 0}}>
         <Row>
           <Col xs={12}>Total: {total.toFixed(2)}€</Col>
         </Row>
@@ -125,12 +120,9 @@ class Checkout extends Component {
             marginTop: '20px',
           }}>
           {this.renderCheckout()}
-          <Panel style={{padding: 0}}>
+          <Panel header={<h2><b>Košík</b></h2>} style={{padding: 0}}>
             <div styleName={'cart'}>
-              <Grid fluid>
-                <Row><h2>Košík</h2></Row>
-                {this.renderCart()}
-              </Grid>
+              {this.renderCart()}
             </div>
           </Panel>
         </Grid>

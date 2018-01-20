@@ -58,10 +58,7 @@ class Sidebar extends Component {
       <Grid fluid style={{marginTop: '20px'}}>
         <Row>
           <Col xs={12}>
-            <Panel style={{padding: '0'}}>
-              <Row>
-                <h1>Sortiment</h1>
-              </Row>
+            <Panel header={<h1><b>Sortiment</b></h1>} style={{padding: '0'}}>
               {loggedIn ? this.renderLoggedIn() : this.renderLoggedOut()}
               <Login />
             </Panel>

@@ -1,14 +1,12 @@
 import {forwardReducerTo, compose} from './utils';
 import {setInitialShopState} from './state/shop';
 import {setInitialNotificationsState} from './state/notifications';
-import {setInitialRegistrationState} from './state/registration';
 import {setInitialLoginState} from './state/login';
 import {setInitialNewStockState} from './state/newStock';
 
 export const getInitialState = () => compose(
   setInitialShopState,
   setInitialNotificationsState,
-  setInitialRegistrationState,
   setInitialLoginState,
   setInitialNewStockState,
 )({});

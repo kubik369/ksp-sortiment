@@ -1,84 +1,121 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import {get, isNumber, toNumber} from 'lodash';
 import axios from 'axios';
-import {Grid, Row, Col, FormControl, Button, PageHeader, Panel, ControlLabel} from 'react-bootstrap';
+import {Grid, Row, Col, FormControl, Button,
+  Panel, ControlLabel} from 'react-bootstrap';
 
-import {goToPage} from '../actions/shop';
-import {changeBalance, changeUsername, clearForm} from '../actions/registration';
+import {goToPage, loadUsers} from '../actions/shop';
 import {login} from '../actions/login';
 import {addNotification} from '../actions/notifications';
-import {PATH_REGISTRATION} from '../state/registration';
 import {mergeProps} from '../utils';
 
 class Registration extends Component {
 
+  componentWillMount() {
+    this.state = {
+      username: '',
+      balance: '',
+      isic: '',
+    };
+  }
+
   handleSubmit = (e) => {
     e.preventDefault();
-    const {username, balance, actions: {login, addNotification, clearForm}} = this.props;
+    const {username, balance, isic} = this.state;
+    const {actions: {login, addNotification, clearForm, loadUsers}} = this.props;
 
-    if (!username || !isNumber(toNumber(balance))) {
+    if (!username || !/^[0-9]*\.?[0-9]{1,2}$/.test(balance)) {
       addNotification('Chýbajúce alebo chybné údaje!');
       return;
     }
 
+    const data = {
+      username: username.trim(),
+      balance,
+    };
+
+    if (isic && isic.length > 0) {
+      data.isic = isic;
+    }
+
     axios
-      .post('/register', {username: username.trim(), balance})
+      .post('/register', data)
+      .then(async (res) => {
+        await loadUsers();
+        return res;
+      })
+      .then(({data: {user}}) => login(user))
       .then(clearForm)
-      .then((res) => login(username))
       .catch((err) => {
         console.error(`Registration failed: ${err}`);
-        addNotification('Niečo sa stalo, tvoje meno už je použité alebo nebolo možné dosiahnuť server.', 'error');
+        addNotification(
+          'Niečo sa stalo, tvoje meno už je použité ' +
+            'alebo nebolo možné dosiahnuť server.',
+          'error'
+        );
       });
   }
 
-  handleChangeUsername = ({target: {value}}) => {
-    this.props.actions.changeUsername(value.trim());
-  }
-
-  handleChangeBalance = ({target: {value}}) => {
-    this.props.actions.changeBalance(value);
-  }
-
   renderForm = () => {
-    const {username, balance} = this.props;
+    const {username, balance, isic} = this.state;
 
     return (
-      <form onSubmit={this.handleSubmit}>
-        <Row>
-          <Col lg={4} md={4} sm={4}>
-            <ControlLabel>Username</ControlLabel>
-            <FormControl
-              type={'text'}
-              name={'username'}
-              value={username}
-              placeholder={'Username'}
-              onChange={this.handleChangeUsername}
-            />
-          </Col>
-          <Col lg={4} md={4} sm={4}>
-            <ControlLabel>Počiatočný kredit</ControlLabel>
-            <FormControl
-              type={'text'}
-              name={'balance'}
-              value={balance}
-              placeholder={'Počiatočný kredit'}
-              onChange={this.handleChangeBalance}
-            />
-          </Col>
-          <Col lg={4} md={4} sm={4}>
-            <Button
-              bsStyle={'success'}
-              type={'submit'}
-              style={{marginTop: '25px'}}
-              disabled={!(username && balance != null && isNumber(balance))}
-            >
-              Registrácia
-            </Button>
-          </Col>
-        </Row>
-      </form>
+      <Panel header={<h1><b>Registrácia</b></h1>}>
+        <form onSubmit={this.handleSubmit}>
+          <Row>
+            <Col xs={4}>
+              <ControlLabel>Username</ControlLabel>
+              <FormControl
+                type={'text'}
+                name={'username'}
+                value={username}
+                placeholder={'Username'}
+                onChange={
+                  ({target: {value}}) => this.setState({username: value})
+                }
+              />
+            </Col>
+            <Col xs={4}>
+              <ControlLabel>Počiatočný kredit</ControlLabel>
+              <FormControl
+                type={'text'}
+                name={'balance'}
+                value={balance}
+                placeholder={'Počiatočný kredit'}
+                onChange={
+                  ({target: {value}}) => this.setState({balance: value})
+                }
+              />
+            </Col>
+            <Col xs={4}>
+              <Button
+                bsStyle={'success'}
+                type={'submit'}
+                style={{marginTop: '25px'}}
+                disabled={!(username && /^[0-9]*\.?[0-9]{1,2}$/.test(balance))}
+              >
+                Registrácia
+              </Button>
+            </Col>
+          </Row>
+          <Row>
+            <Col xs={4}>
+              <ControlLabel>Počiatočný kredit</ControlLabel>
+              <FormControl
+                type={'text'}
+                name={'isic'}
+                value={isic}
+                placeholder={'Číslo čipu ISICu'}
+                onChange={
+                  ({target: {value}}) => this.setState({isic: value})
+                }
+              />
+            </Col>
+            <Col xs={8} />
+          </Row>
+        </form>
+      </Panel>
     );
   }
 
@@ -87,10 +124,7 @@ class Registration extends Component {
       <Grid fluid style={{marginTop: '20px'}}>
         <Row>
           <Col xs={12}>
-            <Panel>
-              <PageHeader>Registrácia</PageHeader>
-              {this.renderForm()}
-            </Panel>
+            {this.renderForm()}
           </Col>
         </Row>
       </Grid>
@@ -99,17 +133,12 @@ class Registration extends Component {
 }
 
 export default connect(
-  (state) => ({
-    username: get(state, [...PATH_REGISTRATION, 'username']),
-    balance: get(state, [...PATH_REGISTRATION, 'balance']),
-  }),
+  null,
   (dispatch) => bindActionCreators({
     goToPage,
     login,
-    changeUsername,
-    changeBalance,
     addNotification,
-    clearForm,
+    loadUsers,
   }, dispatch),
   mergeProps
 )(Registration);

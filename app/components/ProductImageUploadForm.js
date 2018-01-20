@@ -92,7 +92,7 @@ class ProductImageUpload extends Component {
 
   render = () => {
     return (
-      <Panel header={'Nahrať obrázok'}>
+      <Panel header={<h1><b>Nahrať obrázok</b></h1>}>
         <Row>
           <form onSubmit={this.uploadImage}>
             <Col xs={4}>

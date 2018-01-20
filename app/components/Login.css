@@ -5,3 +5,7 @@ input {
 .login {
     margin-top: 10px;
 }
+
+.userInfo {
+    text-align: center;
+}
