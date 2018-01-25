@@ -13,9 +13,9 @@ Pre development aj produkciu treba zbehnúť
 ```bash
 git clone https://github.com/kubik369/ksp-sortiment.git
 cd ksp-sortiment
+npm install
 npm run migrations
 npm run seeds
-npm install
 ```
 
 Pre development webpack server
