@@ -25,11 +25,12 @@
 .image {
     max-height: 100%;
     max-width: 100%;
+    border-radius: 25px;
 }
 
 .label {
     text-align: center;
-    font-size: 1.25em;
+    font-size: 1em;
     font-weight: bold;
 }
 

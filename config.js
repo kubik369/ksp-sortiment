@@ -1,7 +1,7 @@
-var config = {
+const config = {
   dev: process.env.DEV || false,
   port: process.env.PORT || 3000,
-  database: 'sortiment.sqlite',
+  imagePath: './images/',
 };
 
 module.exports = config;

@@ -5,7 +5,7 @@ import {bindActionCreators} from 'redux';
 import {get} from 'lodash';
 
 import {clearNotification} from '../actions/notifications';
-import {PATH_NOTIFICATIONS} from '../reducers/notifications';
+import {PATH_NOTIFICATIONS} from '../state/notifications';
 
 const style = {
   NotificationItem: {

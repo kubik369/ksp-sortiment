@@ -4,21 +4,35 @@ import {connect} from 'react-redux';
 import {get} from 'lodash';
 import {Grid, Row, Col, Panel} from 'react-bootstrap';
 
-import {fetchProducts} from '../actions/actions';
-import {PATH_SHOP} from '../reducers/shop';
+import {addToCart, loadProducts} from '../actions/shop';
+import {PATH_SHOP} from '../state/shop';
+import {mergeProps} from '../utils';
+import BarcodeInput from './BarcodeInput';
 import Product from './Product';
 import Checkout from './Checkout';
 
 class Sortiment extends Component {
   componentWillMount = () => {
-    this.props.fetchProducts();
+    this.props.actions.loadProducts();
   }
 
+  isBarcodeProduct = (barcode) => barcode in this.props.products
+
+  renderBarcodeInput = () => (
+    <div style={{width: '50%', marginLeft: 'auto', marginRight: 'auto'}}>
+      <BarcodeInput
+        isBarcodeValid={this.isBarcodeProduct}
+        action={this.props.actions.addToCart}
+        placeholder={'Barcode'}
+      />
+    </div>
+  )
+
   render() {
-    const products = Object.keys(this.props.products.data).map(
-      (key) => (this.props.products.data[key].stock > 0) && (
-        <Col lg={4} sm={4} key={key}>
-          <Product id={key} />
+    const products = Object.keys(this.props.products).map(
+      (key) => (this.props.products[key].stock > 0) && (
+        <Col xs={4} key={key}>
+          <Product barcode={key} />
         </Col>
       )
     );
@@ -26,15 +40,20 @@ class Sortiment extends Component {
     return (
       <Grid fluid>
         <Row>
-          <Col lg={9} md={9} sm={9}
-            style={{
-              maxHeight: '560px',
-              overflowY: 'auto',
-              marginTop: '20px',
-              marginBottom: '20px',
-            }}
-            ><Panel>{products}</Panel></Col>
-          <Col lg={3} md={3} sm={3}>
+          <Col xs={9} style={{
+            maxHeight: '560px',
+            overflowY: 'auto',
+            marginTop: '20px',
+            marginBottom: '20px',
+          }}>
+            <Panel
+              header={<h1><b>Tovar</b></h1>}
+              footer={this.renderBarcodeInput()}
+            >
+              {products}
+            </Panel>
+          </Col>
+          <Col xs={3}>
             <Checkout />
           </Col>
         </Row>
@@ -45,10 +64,11 @@ class Sortiment extends Component {
 
 export default connect(
   (state) => ({
-    products: get(state, [...PATH_SHOP, 'products']),
+    products: get(state, [...PATH_SHOP, 'products', 'data']),
   }),
   (dispatch) => bindActionCreators(
-    {fetchProducts},
+    {loadProducts, addToCart},
     dispatch
-  )
+  ),
+  mergeProps
 )(Sortiment);

@@ -11,7 +11,8 @@ import Registration from './Registration';
 import Welcome from './Welcome';
 import Notifications from './Notifications';
 
-import {PATH_SHOP} from '../reducers/shop';
+import {PATH_SHOP} from '../state/shop';
+import {PATH_LOGIN} from '../state/login';
 import {pages} from '../constants/enums/pages';
 
 import './App.css';
@@ -34,10 +35,10 @@ class App extends Component {
         <Notifications />
         <Grid fluid>
           <Row>
-            <Col lg={2} md={2} sm={2} style={{padding: '0'}}>
+            <Col xs={2} style={{padding: '0'}}>
               <Sidebar />
             </Col>
-            <Col lg={10} md={10} sm={10} style={{padding: '0'}}>
+            <Col xs={10} style={{padding: '0'}}>
               {allPages[currentPage]}
             </Col>
           </Row>
@@ -49,8 +50,7 @@ class App extends Component {
 
 export default connect(
   (state) => ({
-    addingStock: get(state, [...PATH_SHOP, 'newStock', 'active']),
-    loggedIn: get(state, [...PATH_SHOP, 'login', 'loggedIn']),
+    loggedIn: get(state, [...PATH_LOGIN, 'loggedIn']),
     currentPage: get(state, [...PATH_SHOP, 'currentPage']),
   }),
   null

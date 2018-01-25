@@ -1,212 +1,243 @@
-import db from 'sqlite';
 import Promise from 'bluebird';
-import fs from 'fs';
+import fs from 'fs-extra';
 import moment from 'moment';
 import {isNumber, toNumber} from 'lodash';
+
+import db from './db.js';
 
 const logger = {
   log: (message) => console.log(`[${moment().format('HH:mm:ss L')}] ${message}`),
   error: (message) => console.error(`[${moment().format('HH:mm:ss L')}] ${message}`),
 };
 
-export async function getProducts(req, res) {
+export const getProducts = async (req, res) => {
   try {
+    const products = (await db('products').select())
+      .reduce((all, product) => {
+        all[product.barcode] = product;
+        return all;
+      }, {});
+
     res.setHeader('Content-Type', 'application/json');
-    res.json({products: await db.all('SELECT * FROM products')});
+    res.json({products});
   } catch (err) {
     res.status(500).send('Could not get products');
   }
-}
+};
 
-export async function getUsers(req, res) {
+export const getUsers = async (req, res) => {
   try {
+    const users = (await db('users').select())
+      .reduce((all, user) => {
+        all[user.id] = user;
+        return all;
+      }, {});
+
     res.setHeader('Content-Type', 'application/json');
-    res.json({users: await db.all('SELECT * FROM users')});
+    res.json({users});
   } catch (err) {
     res.status(500).send('Could not get users');
   }
-}
+};
 
-export async function registerUser(req, res) {
-  const {username, balance} = req.body;
-  const userExists = await db.get(
-    'SELECT * FROM users WHERE username=$username',
-    {$username: username}
-  );
+export const registerUser = async (req, res) => {
+  const {username, isic, balance} = req.body;
+  const userExists = await db('users').where({username}).select();
 
-  if (userExists || !username || !isNumber(toNumber(balance))) {
+  if (userExists.length || !username || !/^[0-9]*\.?[0-9]{1,2}$/.test(balance)) {
     res.status(500).send();
     return;
   }
 
   try {
-    await db.run(
-      'INSERT INTO users(username, balance) VALUES($username, $balance)',
-      {$username: username, $balance: balance}
+    const [user] = await db('users')
+      .insert({
+        username,
+        balance,
+        ...(isic ? {isic} : {}), // insert ISIC too if applicable
+      });
+
+    logger.log(
+      `Registered user ${username} with initial balance of ${balance} and ISIC number ${isic}`
     );
-    await db.run(
-      'INSERT INTO logs(timestamp, user_id, balance_change, info) VALUES($ts, $user, $change, $info)',
-      {$ts: moment().toISOString(), $user: username, $change: balance, $info: 'registration'}
-    );
-    logger.log(`Registered user ${username} with initial balance of ${balance}`);
-    res.status(200).send();
+
+    res.json({user});
   } catch (err) {
     logger.error(`Error during registration of user ${username}. Stack trace: ${err}`);
     res.status(500).send();
   }
-}
+};
 
-export async function addCredit(req, res) {
-  const {username, credit} = req.body;
-  logger.log(`Adding ${credit} to ${username}`);
+export const addCredit = async (req, res) => {
+  const {userId, credit} = req.body;
+  logger.log(`Adding ${credit} to user with id ${userId}`);
 
-  if (!username || !isNumber(toNumber(credit))) {
+  if (!userId || !isNumber(toNumber(credit))) {
     res.status(500).send();
     return;
   }
 
   try {
-    await db.run(
-      'UPDATE users SET balance = balance + $credit WHERE username=$username',
-      {$credit: credit, $username: username}
-    );
-    await db.run(
-      'INSERT INTO logs(timestamp, user_id, balance_change, info) VALUES($ts, $user, $change, $info)',
-      {$ts: moment().toISOString(), $user: username, $change: credit, $info: 'credit'}
-    );
+    await db('users')
+      .where({id: userId})
+      .update({
+        balance: db.raw(`balance + ${credit}`),
+      });
     res.status(200).send();
   } catch (err) {
     logger.error('Credit adding failed');
     res.status(500).send();
   }
-}
+};
 
-export async function buy(req, res) {
-  const {cart, username, useCredit} = req.body;
+export const buy = async (req, res) => {
+  const {cart, userId, useCredit} = req.body;
 
-  if (!cart || !username) {
+  if (!cart || !userId) {
     res.status(500).send();
     return;
   }
 
-  const products = await db.all('SELECT * FROM products')
-    .reduce((res, item) => ({...res, [item.id]: item}), {});
+  const products = await db('products').select()
+    .reduce((res, item) => ({...res, [item.barcode]: item}), {});
 
   for (let product of Object.values(products)) {
-    if (cart[product.id]) {
-      if (cart[product.id] > product.stock) {
-        res.status(500).send(`Insufficient stock of ${product.label}`);
+    if (cart[product.barcode]) {
+      if (cart[product.barcode] > product.stock) {
+        res.status(500).send(`Insufficient stock of ${product.name}`);
         return;
-      } else if (cart[product.id] < 0) {
-        res.status(500).send(`Negative amount of ${product.label}`);
+      } else if (cart[product.barcode] < 0) {
+        res.status(500).send(`Negative amount of ${product.name}`);
         return;
       }
     }
   }
 
   const total = Object.values(products).reduce(
-    (total, product) => total + product.price * cart[product.id], 0
+    (total, {barcode, price}) => total + price * (cart[barcode] || 0), 0
   );
 
   try {
     // update all the bought stock
-    await Promise.all(
-      Object.keys(cart).map(
-        (id) => db.run(
-          'UPDATE products SET stock = stock - $amount WHERE id=$id',
-          {$amount: cart[id], $id: id}
-        )
-      )
-    );
+    const updateProduct = (barcode) => db('products')
+      .where({barcode})
+      .update({
+        stock: db.raw(`stock - ${cart[barcode]}`),
+      });
+
+    await Promise.all(Object.keys(cart).map(updateProduct));
+
     if (useCredit) {
       // update user balance
-      await db.run(
-        'UPDATE users SET balance = balance - $debit WHERE username=$username',
-        {$debit: total, $username: username}
-      );
+      await db('users')
+        .where({id: userId})
+        .update({
+          balance: db.raw(`balance - ${total}`),
+        });
     }
-    await db.run(
-      'INSERT INTO logs(timestamp, user_id, balance_change, info) VALUES($ts, $user, $debit, $info)',
-      {
-        $ts: moment().toISOString(),
-        $user: username,
-        $debit: useCredit ? -total : 0,
-        $info: Object.keys(cart).map(
-          (id) => cart[id] ? `${cart[id]} ${products[id].label}` : ''
-        ).join(';'),
-      }
-    );
     res.status(200).send();
   } catch (err) {
     logger.error(`Error during buying process. Stack trace: ${err}`);
     res.status(500).send();
   }
-}
+};
 
-function getNewPrice(oldPrice, oldStock, newPrice, newStock) {
-  newPrice = parseFloat(newPrice) || 0;
-  newStock = parseInt(newStock, 10) || 0;
+const getNewPrice = (oldPrice, oldStock, newPrice, newStock) => {
+  // parse the values given into numbers
+  newPrice = /^[0-9]*\.?[0-9]{1,2}$/.test(newPrice) ? parseFloat(newPrice) : 0;
+  newStock = /^[1-9][0-9]*$/.test(newStock) ? parseInt(newStock, 10) : 0;
+
+  // calculate new price of all the stock
   const price = ((oldPrice * oldStock) + (newPrice * newStock)) / (oldStock + newStock);
+
+  // round to 2 decimal places
   return (Math.ceil(price * 20) / 20).toFixed(2);
-}
+};
 
-export async function addStock(req, res) {
-  const {username, label, quantity, price, uploadImage} = req.body;
+const amountAndPriceValid = (quantity, price) => {
+  const isQuantityInteger = /^[1-9][0-9]*$/.test(quantity);
+  const isPriceFloat = /^[0-9]*\.?[0-9]{1,2}$/.test(price);
 
-  if (!(username && label && quantity && price)) {
+  return isQuantityInteger && isPriceFloat;
+};
+
+export const addStock = async (req, res) => {
+  try {
+    const {barcode, quantity, price} = req.body;
+    // get the product from database
+    const [product] = await db('products').where({barcode});
+
+    if (!product || barcode !== product.barcode) {
+      await addNewStock(req, res);
+      return;
+    }
+
+    const newPrice = getNewPrice(product.price, product.stock, price, quantity);
+
+    await db('products')
+      .where({barcode})
+      .update({
+        stock: db.raw(`stock + ${quantity}`),
+        price: newPrice,
+      });
+    res.status(200).send();
+  } catch (err) {
+    logger.error(`Error during re-stocking ${err}`);
+    res.status(500).send();
+  }
+};
+
+const addNewStock = async (req, res) => {
+  const {userId, barcode, name, quantity, price} = req.body;
+
+  console.log(userId, barcode, name, quantity, price);
+  if (
+    // information missing
+    !(userId && barcode && quantity && price)
+    || !amountAndPriceValid(quantity, price)
+  ) {
     res.status(500).send();
     return;
   }
 
-  if (uploadImage) {
-    fs.writeFile(
-      `./images/${label}.jpg`,
-      new Buffer(req.body.image.replace(/^data:image\/\w+;base64,/, ''), 'base64'),
-      (err) => logger.error(err)
-    );
+  try {
+    await db('products').insert({barcode, name, price, stock: quantity});
+    res.status(200).send();
+  } catch (err) {
+    logger.error(`Error during re-stocking ${err}`);
+    res.status(500).send();
   }
+};
 
-  const product = await db.get('SELECT price, stock FROM products WHERE label=$label', {$label: label});
+export const renameProduct = async (req, res) => {
+  try {
+    const {barcode, name} = req.body;
 
-  if (product) {
-    const newPrice = getNewPrice(product.price, product.stock, price, quantity);
+    await db('products')
+      .where({barcode})
+      .update({name});
 
-    try {
-      await db.run(
-        'UPDATE products SET stock = stock + $newStock, price=$newPrice WHERE label=$label;',
-        {$newStock: quantity, $newPrice: newPrice, $label: label}
-      );
-      await db.run(
-        'INSERT INTO logs(timestamp, user_id, info) VALUES($ts, $user, $info)',
-        {
-          $ts: moment().toISOString(),
-          $user: username,
-          $info: `stock;${label};${price};${quantity}`,
-        }
-      );
-      res.status(200).send();
-    } catch (err) {
-      logger.error(`Error during re-stocking ${err}`);
-      res.status(500).send();
-    }
-  } else {
-    try {
-      await db.run(
-        'INSERT INTO products(label, price, stock) VALUES ($label, $price, $stock)',
-        {$label: label, $price: price, $stock: quantity}
-      );
-      await db.run(
-        'INSERT INTO logs(timestamp, user_id, info) VALUES($ts, $user, $info)',
-        {
-          $ts: moment().toISOString(),
-          $user: username,
-          $info: `stock;${label};${price};${quantity}`,
-        }
-      );
-      res.status(200).send();
-    } catch (err) {
-      logger.error(`Error during re-stocking ${err}`);
-      res.status(500).send();
-    }
+    res.status(200).send();
+  } catch (err) {
+    logger.error(`Error during product renaming.\n ${err}`);
+    res.status(500).send();
   }
-}
+};
+
+export const uploadImage = async (req, res) => {
+  try {
+    const {body: {barcode}, file: {path: tempImagePath}} = req;
+    const [product] = await db('products').where({barcode});
+
+    if (!product) {
+      res.status(500).send();
+      await fs.remove(tempImagePath);
+      return;
+    }
+    await fs.move(tempImagePath, `./images/${barcode}.jpg`, {overwrite: true});
+    res.status(200).send();
+  } catch (err) {
+    logger.error(`Error during re-stocking ${err}`);
+    res.status(500).send();
+  }
+};
