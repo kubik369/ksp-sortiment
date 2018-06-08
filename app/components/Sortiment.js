@@ -31,7 +31,7 @@ class Sortiment extends Component {
   render() {
     const products = Object.keys(this.props.products).map(
       (key) => (this.props.products[key].stock > 0) && (
-        <Col xs={4} key={key}>
+        <Col xs={3} key={key} style={{padding: 0}}>
           <Product barcode={key} />
         </Col>
       )
@@ -47,13 +47,12 @@ class Sortiment extends Component {
             marginBottom: '20px',
           }}>
             <Panel
-              header={<h1><b>Tovar</b></h1>}
               footer={this.renderBarcodeInput()}
             >
               {products}
             </Panel>
           </Col>
-          <Col xs={3}>
+          <Col xs={3} style={{padding: 0, paddingRight: '10px'}}>
             <Checkout />
           </Col>
         </Row>

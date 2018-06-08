@@ -5,4 +5,5 @@ export const pages = {
   addCredit: 3,
   addStock: 4,
   store: 5,
+  stats: 6,
 };

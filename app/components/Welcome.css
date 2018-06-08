@@ -16,3 +16,9 @@ p {
 .nameLogin {
     margin: 3px;
 }
+
+.debt, .debt:hover, .debt:active, .debt:visited  {
+    margin: 3px;
+    background-image: none;
+    background-color: #8A0707 !important;
+}

@@ -17,36 +17,71 @@ class Welcome extends Component {
     this.props.actions.loadUsers();
   }
 
-  render() {
-    const {users, actions: {login}} = this.props;
-    const buttonStyles = ['success', 'danger', 'info', 'warning'];
+  getButtonColourByBalance = (balance) => {
+    if (balance < -5.0) {
+      return 'danger';
+    } else if (balance < 0) {
+      return 'warning';
+    } else if (balance < 5) {
+      return 'info';
+    } else {
+      return 'success';
+    }
+  }
 
+  renderButton = ({id, username, balance}) => {
+    const {actions: {login}} = this.props;
+    const isSeverelyIndebted = balance < -10;
+
+    return (
+      <Button
+        key={id}
+        bsStyle={this.getButtonColourByBalance(balance)}
+        styleName={isSeverelyIndebted ? 'debt' : 'nameLogin'}
+        onClick={() => login(id)}
+      >
+        {username}
+      </Button>
+    );
+  }
+
+  renderWelcomeText = () => {
+    const GUEST_ID = 1;
+    return (
+      <div>
+        <h1 styleName="title">Vitaj, hladný pocestný</h1>
+        <p>
+          Ak si v našom sortimente ešte nenakupoval, prosím, zaregistruj
+          sa.<br />
+          Ak to tu už poznáš, prihlás sa vyhľadaním a následným kliknutím
+          na svoje meno.<br />
+          Ak si tu len na návšteve, použi prosím účet
+          <Button
+            styleName={'nameLogin'}
+            bsStyle={'success'}
+            onClick={() => this.props.actions.login(GUEST_ID)}
+          >
+            guest
+          </Button>
+        </p>
+      </div>
+    );
+  }
+
+  renderUserLoginButtons = () => (
+    Object.values(this.props.users)
+      .slice(1)
+      .map(this.renderButton)
+  )
+
+  render() {
     return (
       <Grid fluid>
         <Row>
           <Col xs={12} styleName={'wrapper'}>
             <Jumbotron>
-              <h1 styleName="title">Vitaj, hladný pocestný</h1>
-              <p>
-                Ak si v našom sortimente ešte nenakupoval, prosím, zaregistruj sa. <br />
-                Ak to tu už poznáš, prihlás sa vyhľadaním a následným kliknutím na svoje meno. <br />
-                Ak si tu len na návšteve, použi prosím účet
-                <Button
-                  styleName={'nameLogin'}
-                  bsStyle={buttonStyles[2]}
-                  onClick={() => login(1)}
-                >
-                  guest
-                </Button>
-              </p>
-              {Object.values(users).map(({id, username}, i) => (
-                <Button
-                  key={i}
-                  styleName={'nameLogin'}
-                  bsStyle={buttonStyles[username.charCodeAt(0) % 4]}
-                  onClick={() => login(id)}
-                >{username}</Button>
-              ))}
+              {this.renderWelcomeText()}
+              {this.renderUserLoginButtons()}
             </Jumbotron>
           </Col>
         </Row>

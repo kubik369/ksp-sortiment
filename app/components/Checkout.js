@@ -60,8 +60,13 @@ class Checkout extends Component {
               <Col xs={12}>{products[id].name}</Col>
             </Row>
             <Row>
-              <Col xs={6}>{`${cart[id]} ks`}</Col>
-              <Col xs={6}>
+              <Col xs={4} style={{padding: 0, paddingLeft: '10px'}}>
+                {`${cart[id]} ks`}
+              </Col>
+              <Col xs={4} style={{padding: 0}}>
+                {`${(cart[id] * products[id].price).toFixed(2)} €`}
+              </Col>
+              <Col xs={4} style={{padding: 0, paddingRight: '25px'}}>
                 <Button onClick={() => cart[id] > 0 && removeFromCart(id)}>
                   <Glyphicon glyph={'remove'} />
                 </Button>
@@ -116,8 +121,8 @@ class Checkout extends Component {
           fluid
           style={{
             padding: '0',
+            paddingTop: '20px',
             maxHeight: '600px',
-            marginTop: '20px',
           }}>
           {this.renderCheckout()}
           <Panel header={<h2><b>Košík</b></h2>} style={{padding: 0}}>
