@@ -1,19 +1,63 @@
 <!DOCTYPE html>
 <html>
   <head>
+    <meta charset="utf-8">
     <title>Sortiment</title>
   </head>
   <body>
-    <h1>Sortiment</h1>
-    <p>Študent: Jakub Šimo (email: simo18~at~uniba.sk)</p>
-    <p>Vedúci: RNDr. Michal Foríšek, PhD (email: misof~at~ksp.sk)</p>
-    <p><a href="https://github.com/kubik369/ksp-sortiment">Repozitár projektu</a></p>
-    <h2>Cieľ projektu:</h2>
-    <ol>
-      <li>Pridanie QoL zlepšení do bufetového systému KSP, ako nakupovanie pomocou barcode scannera, jednoduchšie pridávanie tovaru, etc.. </li>
-      <li>Vytvorenie dokumentácie</li>
-      <li>Zlepšenie databázovej schémy a zálohového systému</li>
-      <li>Refactor <a href="https://github.com/reactjs/react-redux">Redux</a> systému na <a href="https://github.com/vacuumlabs/reduced_redux">reduced_redux</a></li>
-    </ol>
+    <section>
+      <h1>Sortiment - stránka ročníkového projektu</h1>
+      <p>Študent: Jakub Šimo (email: simo18~at~uniba.sk)</p>
+      <p>Vedúci: RNDr. Michal Foríšek, PhD (email: misof~at~ksp.sk)</p>
+      <p><a href="https://github.com/kubik369/ksp-sortiment">Repozitár projektu</a></p>
+    </section>
+    <section>
+      <h2>Cieľ projektu:</h2>
+      <ol>
+        <li>Pridanie QoL zlepšení do bufetového systému KSP, ako nakupovanie pomocou barcode scannera, jednoduchšie pridávanie tovaru, etc.. </li>
+        <li>Vytvorenie dokumentácie</li>
+        <li>Zlepšenie databázovej schémy a zálohového systému</li>
+        <li>
+          Refactor <a href="https://github.com/reactjs/react-redux">Redux</a>
+          systému na
+          <a href="https://github.com/vacuumlabs/reduced_redux">reduced_redux</a>
+        </li>
+      </ol>
+    </section>
+    <section>
+      <h2>Dosiahnuté zmeny</h2>
+      <p>
+        Všetky ciele (okrem iba čiastočne splneného bodu 2.), boli splnené.
+      </p>
+      <p>
+        Sortiment bol preinštalovaný z bloated Elementary OS inštalácie na
+        čistú Debian inštaláciu s Openbox WM. Na systéme už beží iba jedno hlavné
+        okno prehliadača Chromium v kiosk móde. Toto zvyšilo kvalitu UX, systém
+        (Atom N450, 2GB RAM) už nie je zaťažovaný zbytočnými procesmi a
+        scrollovanie a responzívnosť rozhrania sa zlepšila.
+      </p>
+      <p>
+        Systém bol taktiež zautomatizovaný. Po výpadku prúdu už netreba ľudskú
+        intervenciu, systém sa sám z výpadku spamätá. Hneď po nabehnutí systému
+        sa server a kiosk okno spustia, pripravené na použitie.
+      </p>
+      <p>
+        Nákup pomocou čítačky čiarových kódov už je možný, pridávanie tovaru
+        taktiež využíva túto čítačku, urychlujúc tento proces. Na implementáciu
+        bolo treba zmeniť štruktúru databázy, hlavnou zmenou bolo využitie
+        čiarového kódu ako unikátneho identifikátora produktu. Taktiež bol
+        implementovaný logovací systém, pomocou ktorého sa neskôr budú robiť
+        štatistiky na zlepšenie kvality poskytovaných služieb.
+      </p>
+      <p>
+        Refaktor systému zvyšíl kvalitu kódu a dôsledkom toho aj udržiavateľnosť
+        už netriviálnej codebase.
+      </p>
+    </section>
+    <section>
+      <h2>Záver</h2>
+      Projekt bol úspešný a teší sa obľube jeho uživateľov, ktorý sú rádovo
+      spokojnejší s novou, vylepšenou verziou systému.
+    </section>
   </body>
 </html>
