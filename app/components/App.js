@@ -10,6 +10,7 @@ import Sidebar from './Sidebar';
 import Registration from './Registration';
 import Welcome from './Welcome';
 import Notifications from './Notifications';
+import Stats from './Stats';
 
 import {PATH_SHOP} from '../state/shop';
 import {PATH_LOGIN} from '../state/login';
@@ -28,6 +29,7 @@ class App extends Component {
       [pages.addCredit]: <AddCredit />,
       [pages.addStock]: <AddStock />,
       [pages.store]: <Sortiment />,
+      [pages.stats]: <Stats />,
     };
 
     return (

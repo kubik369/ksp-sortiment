@@ -47,6 +47,9 @@ class Sidebar extends Component {
         <Button bsStyle={'primary'} onClick={() => goToPage(pages.registration)} block>
           Registrácia
         </Button>
+        <Button bsStyle={'primary'} onClick={() => goToPage(pages.stats)} block>
+          Štatistiky
+        </Button>
       </div>
     );
   }
@@ -55,7 +58,7 @@ class Sidebar extends Component {
     const {loggedIn} = this.props;
 
     return (
-      <Grid fluid style={{marginTop: '20px'}}>
+      <Grid fluid style={{marginTop: '20px', padding: 0, paddingLeft: '10px'}}>
         <Row>
           <Col xs={12}>
             <Panel header={<h1><b>Sortiment</b></h1>} style={{padding: '0'}}>

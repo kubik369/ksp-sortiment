@@ -10,6 +10,12 @@ const logger = {
   error: (message) => console.error(`[${moment().format('HH:mm:ss L')}] ${message}`),
 };
 
+const Operations = {
+  BUY: 'buy',
+  ADD_STOCK: 'stock',
+  ADD_CREDIT: 'credit',
+};
+
 export const getProducts = async (req, res) => {
   try {
     const products = (await db('products').select())
@@ -83,6 +89,15 @@ export const addCredit = async (req, res) => {
       .update({
         balance: db.raw(`balance + ${credit}`),
       });
+    const log = JSON.stringify({
+      operation: Operations.ADD_CREDIT,
+      credit,
+    });
+    await db('logs')
+      .insert({
+        user_id: userId,
+        log,
+      });
     res.status(200).send();
   } catch (err) {
     logger.error('Credit adding failed');
@@ -97,27 +112,26 @@ export const buy = async (req, res) => {
     res.status(500).send();
     return;
   }
+  try {
+    const products = await db('products').select()
+      .reduce((res, item) => ({...res, [item.barcode]: item}), {});
 
-  const products = await db('products').select()
-    .reduce((res, item) => ({...res, [item.barcode]: item}), {});
-
-  for (let product of Object.values(products)) {
-    if (cart[product.barcode]) {
-      if (cart[product.barcode] > product.stock) {
-        res.status(500).send(`Insufficient stock of ${product.name}`);
-        return;
-      } else if (cart[product.barcode] < 0) {
-        res.status(500).send(`Negative amount of ${product.name}`);
-        return;
+    for (const product of Object.values(products)) {
+      if (cart[product.barcode]) {
+        if (cart[product.barcode] > product.stock) {
+          res.status(500).send(`Insufficient stock of ${product.name}`);
+          return;
+        } else if (cart[product.barcode] < 0) {
+          res.status(500).send(`Negative amount of ${product.name}`);
+          return;
+        }
       }
     }
-  }
 
-  const total = Object.values(products).reduce(
-    (total, {barcode, price}) => total + price * (cart[barcode] || 0), 0
-  );
+    const total = Object.values(products).reduce(
+      (total, {barcode, price}) => total + price * (cart[barcode] || 0), 0
+    );
 
-  try {
     // update all the bought stock
     const updateProduct = (barcode) => db('products')
       .where({barcode})
@@ -135,6 +149,23 @@ export const buy = async (req, res) => {
           balance: db.raw(`balance - ${total}`),
         });
     }
+
+    const boughtProducts = Object.keys(cart)
+      .map((barcode) => ({
+        barcode,
+        quantity: cart[barcode],
+        price: products[barcode].price,
+      }));
+    const log = {
+      operation: Operations.BUY,
+      cart: boughtProducts,
+    };
+    await db('logs')
+      .insert({
+        user_id: userId,
+        log: JSON.stringify(log),
+      });
+
     res.status(200).send();
   } catch (err) {
     logger.error(`Error during buying process. Stack trace: ${err}`);
@@ -190,7 +221,6 @@ export const addStock = async (req, res) => {
 const addNewStock = async (req, res) => {
   const {userId, barcode, name, quantity, price} = req.body;
 
-  console.log(userId, barcode, name, quantity, price);
   if (
     // information missing
     !(userId && barcode && quantity && price)
