@@ -21,14 +21,27 @@ class Checkout extends Component {
     this.props.loadProducts();
   }
 
+  isTransactionAllowed = () => {
+    const {cart, processingPurchase} = this.props;
+    const cartTotal = Object.values(cart)
+      .reduce((total, item) => total + item);
+
+    return (
+      cartTotal === 0
+      || processingPurchase.credit
+      || processingPurchase.cash
+    );
+  }
+
   checkout = (useCredit) => {
-    const {cart, userId, loadUsers, loadProducts, logout, addNotification,
-      processingPurchase} = this.props;
+    const {
+      cart, userId, loadUsers, loadProducts, logout, addNotification,
+      setProcessingPurchase,
+    } = this.props;
     const purchaseMethod = useCredit ? 'credit' : 'cash';
 
     // empty cart
-    if (Object.values(cart).reduce((total, item) => total + item) === 0
-      || processingPurchase.credit || processingPurchase.cash) {
+    if (this.isTransactionAllowed()) {
       return;
     }
 
@@ -57,16 +70,18 @@ class Checkout extends Component {
         (<div styleName={'cartItem'} key={id}>
           <Row>
             <Row>
-              <Col xs={12}>{products[id].name}</Col>
+              <Col xs={12}>
+                <b><i>{products[id].name}</i></b>
+              </Col>
             </Row>
-            <Row>
-              <Col xs={4} style={{padding: 0, paddingLeft: '10px'}}>
+            <Row styleName="cartItemBottomRow">
+              <Col xs={4} style={{padding: 0}}>
                 {`${cart[id]} ks`}
               </Col>
               <Col xs={4} style={{padding: 0}}>
                 {`${(cart[id] * products[id].price).toFixed(2)} €`}
               </Col>
-              <Col xs={4} style={{padding: 0, paddingRight: '25px'}}>
+              <Col xs={4}>
                 <Button onClick={() => cart[id] > 0 && removeFromCart(id)}>
                   <Glyphicon glyph={'remove'} />
                 </Button>

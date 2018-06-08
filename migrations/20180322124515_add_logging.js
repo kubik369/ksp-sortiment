@@ -4,8 +4,8 @@ exports.up = async (knex, Promise) => {
     t.increments();
     t.integer('user_id').unsigned();
     t.foreign('user_id').references('users.id');
-    t.string('log');
-    t.timestamps();
+    t.json('log');
+    t.dateTime('created_at').notNullable().defaultTo(knex.raw('CURRENT_TIMESTAMP'));
   });
 };
 

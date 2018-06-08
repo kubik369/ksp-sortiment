@@ -9,12 +9,22 @@
 }
 
 .cartItem {
-    padding-top: 3px;
-    padding-bottom: 3px;
-    border-bottom: 1px solid black;
-    line-height: 30px;
+    padding: 5px;
+    margin-bottom: 3px;
+    border: 2px solid black;
+    border-radius: 10px;
+    /*line-height: 30px;*/
     vertical-align: middle;
     text-align: center;
+}
+
+.cartItemBottomRow {
+    /*padding-top: 10px;*/
+    display: flex;
+    justify-content: center; /* align horizontal */
+    align-items: center; /* align vertical */
+    padding-left: 20px;
+    padding-right: 30px;
 }
 
 h2 {

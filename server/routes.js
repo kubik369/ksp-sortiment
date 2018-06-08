@@ -89,6 +89,15 @@ export const addCredit = async (req, res) => {
       .update({
         balance: db.raw(`balance + ${credit}`),
       });
+    const log = JSON.stringify({
+      operation: Operations.ADD_CREDIT,
+      credit,
+    });
+    await db('logs')
+      .insert({
+        user_id: userId,
+        log,
+      });
     res.status(200).send();
   } catch (err) {
     logger.error('Credit adding failed');
@@ -141,11 +150,21 @@ export const buy = async (req, res) => {
         });
     }
 
-    const boughtProductsLog = Object.keys(cart)
-      .map((barcode) => `${barcode}-${cart[barcode]}-${products[barcode].price}`)
-      .join(',');
-
-    const log = `${Operations.BUY};`;
+    const boughtProducts = Object.keys(cart)
+      .map((barcode) => ({
+        barcode,
+        quantity: cart[barcode],
+        price: products[barcode].price,
+      }));
+    const log = {
+      operation: Operations.BUY,
+      cart: boughtProducts,
+    };
+    await db('logs')
+      .insert({
+        user_id: userId,
+        log: JSON.stringify(log),
+      });
 
     res.status(200).send();
   } catch (err) {

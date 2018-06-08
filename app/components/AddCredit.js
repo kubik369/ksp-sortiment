@@ -31,18 +31,16 @@ class AddCredit extends Component {
       addNotification('Neplatná čiastka!', 'error');
       return;
     }
+    const balanceMessage = balance > 0
+      ? `Čiastka ${balance} úspešne pridaná uživateľovi ${username}`
+      : `Čiastka ${balance} úspešne odobratá od uživateľa ${username}`;
 
     axios
       .post('/credit', {userId, credit: balance.trim()})
-        .then((res) => loadUsers())
-        .then((res) => addNotification(
-          balance > 0
-          ? `Čiastka ${balance} úspešne pridaná uživateľovi ${username}`
-          : `Čiastka ${balance} úspešne odobratá od uživateľa ${username}`,
-          'success'
-        ))
-        .then(() => this.setState({credit: ''}))
-        .catch(() => addNotification('Chyba počas pridávania kreditu.', 'error'));
+      .then((res) => loadUsers())
+      .then((res) => addNotification(balanceMessage, 'success'))
+      .then(() => this.setState({credit: ''}))
+      .catch(() => addNotification('Chyba počas pridávania kreditu.', 'error'));
   }
 
   numpadOnClick = (key) => {
@@ -81,7 +79,7 @@ class AddCredit extends Component {
                 placeholder={'Kredit'}
                 value={this.state.credit}
                 onChange={({target: {value}}) => this.setState({credit: value})}
-                />
+              />
             </Col>
             <Col xs={4}>
               <Button

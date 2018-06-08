@@ -1,13 +1,11 @@
 import React, {Component} from 'react';
 import {bindActionCreators} from 'redux';
 import {connect} from 'react-redux';
-import axios from 'axios';
 import {get} from 'lodash';
-import {Grid, Row, Col, FormControl, Button, Panel, Table, Jumbotron} from 'react-bootstrap';
+import {Grid, Row, Col, Panel, Table} from 'react-bootstrap';
 
 import {loadUsers, loadProducts} from '../actions/shop';
 import {addNotification} from '../actions/notifications';
-import {PATH_LOGIN} from '../state/login';
 import {PATH_SHOP} from '../state/shop';
 import {mergeProps} from '../utils';
 
@@ -39,10 +37,10 @@ class Stats extends Component {
       .filter(({balance}) => balance < 0)
       .sort(this.compareUserBalanceAscending)
       .slice(0, 10)
-      .map(({username, balance}) => (
-        <tr>
-          <td>{username}</td>
-          <td>{balance.toFixed(2)}</td>
+      .map(({username, balance}, i) => (
+        <tr key={i}>
+          <td key="username">{username}</td>
+          <td key="balance">{balance.toFixed(2)}</td>
         </tr>
       ));
 
@@ -110,10 +108,10 @@ class Stats extends Component {
       .filter(({balance}) => balance > 0)
       .sort(this.compareUserBalanceDescending)
       .slice(0, 10)
-      .map(({username, balance}) => (
-        <tr>
-          <td>{username}</td>
-          <td>{balance.toFixed(2)}</td>
+      .map(({username, balance}, i) => (
+        <tr key={i}>
+          <td key="username">{username}</td>
+          <td key="balance">{balance.toFixed(2)}</td>
         </tr>
       ));
 
