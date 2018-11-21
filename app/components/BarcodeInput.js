@@ -19,7 +19,9 @@ export class BarcodeInput extends Component {
 
   haveStock = (barcode) => {
     const {products, cart} = this.props;
-    return barcode && cart[barcode] + 1 <= products[barcode].stock;
+    const cartAmount = get(cart, [barcode], 0);
+    console.log(cartAmount);
+    return barcode && cartAmount + 1 <= products[barcode].stock;
   }
 
   handleOnChange = (e) => {
