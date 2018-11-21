@@ -21,16 +21,27 @@ class Checkout extends Component {
     this.props.loadProducts();
   }
 
-  isTransactionAllowed = () => {
+  isTransactionInvalid = () => {
     const {cart, processingPurchase} = this.props;
-    const cartTotal = Object.values(cart)
+    const cartTotalItems = Object.values(cart)
       .reduce((total, item) => total + item);
 
     return (
-      cartTotal === 0
+      cartTotalItems === 0
       || processingPurchase.credit
       || processingPurchase.cash
     );
+  }
+
+  willOverdraft = () => {
+    const {cart, balance, products} = this.props;
+    let cartPrice = 0;
+    for (const barcode in cart) {
+      if (products.hasOwnProperty(barcode)) {
+        cartPrice += products[barcode].price * cart[barcode];
+      }
+    }
+    return balance - cartPrice < 0;
   }
 
   checkout = (useCredit) => {
@@ -41,7 +52,12 @@ class Checkout extends Component {
     const purchaseMethod = useCredit ? 'credit' : 'cash';
 
     // empty cart
-    if (this.isTransactionAllowed()) {
+    if (this.isTransactionInvalid()) {
+      addNotification('Neplatná/chybná zamietnutá.', 'error');
+      return;
+    }
+    if (this.willOverdraft()) {
+      addNotification('Nemáš dosť kreditu na tento nákup.', 'error');
       return;
     }
 
@@ -161,7 +177,7 @@ export default connect(
     fetchingProducts: get(state, [...PATH_SHOP, 'products', 'fetching']),
     balance: get(
       state,
-      [...PATH_SHOP, 'users', 'data', get(state, [...PATH_LOGIN, 'username']), 'balance'],
+      [...PATH_SHOP, 'users', 'data', get(state, [...PATH_LOGIN, 'userId']), 'balance'],
       0
     ),
     processingPurchase: get(state, [...PATH_SHOP, 'processingPurchase']),

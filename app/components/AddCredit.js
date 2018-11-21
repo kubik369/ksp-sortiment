@@ -22,18 +22,27 @@ class AddCredit extends Component {
   addCredit = (e) => {
     e.preventDefault();
     const {
-      userId, username,
+      userId, user,
       actions: {loadUsers, addNotification},
     } = this.props;
     const balance = this.state.credit.replace(/,/, '.');
 
-    if (balance === null || !isFinite(parseFloat(balance)) || toFinite(balance) === 0) {
+    if (
+      balance === null
+      || !isFinite(parseFloat(balance))
+      || toFinite(balance) === 0
+    ) {
       addNotification('Neplatná čiastka!', 'error');
       return;
     }
+    if (user.balance + toFinite(balance) < 0) {
+      addNotification('Nemôžeš ísť pod nulu.', 'error');
+      return;
+    }
+
     const balanceMessage = balance > 0
-      ? `Čiastka ${balance} úspešne pridaná uživateľovi ${username}`
-      : `Čiastka ${balance} úspešne odobratá od uživateľa ${username}`;
+      ? `Čiastka ${balance} úspešne pridaná uživateľovi ${user.name}`
+      : `Čiastka ${balance} úspešne odobratá od uživateľa ${user.name}`;
 
     axios
       .post('/credit', {userId, credit: balance.trim()})
@@ -123,7 +132,7 @@ export default connect(
     const userId = get(state, [...PATH_LOGIN, 'userId'], -1);
     return {
       userId,
-      username: get(state, [...PATH_SHOP, 'users', 'data', userId, 'username'], 'Unknown'),
+      user: get(state, [...PATH_SHOP, 'users', 'data', userId], {}),
     };
   },
   (dispatch) => bindActionCreators({

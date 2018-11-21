@@ -1,8 +1,15 @@
 import React, {Component} from 'react';
 import PropTypes from 'prop-types';
+import {bindActionCreators} from 'redux';
+import {connect} from 'react-redux';
+import {get} from 'lodash';
 import {
   FormControl, FormGroup, InputGroup, Button, Glyphicon,
 } from 'react-bootstrap';
+
+import {addNotification} from '../actions/notifications';
+import {PATH_SHOP} from '../state/shop';
+import {mergeProps} from '../utils';
 
 export class BarcodeInput extends Component {
 
@@ -10,11 +17,20 @@ export class BarcodeInput extends Component {
     this.state = {barcode: ''};
   }
 
+  haveStock = (barcode) => {
+    const {products, cart} = this.props;
+    return barcode && cart[barcode] + 1 <= products[barcode].stock;
+  }
+
   handleOnChange = (e) => {
     const {target: {value: barcode}} = e;
-    const {action, isBarcodeValid} = this.props;
+    const {action, isBarcodeValid, actions: {addNotification}} = this.props;
 
     if (isBarcodeValid(barcode)) {
+      if (!this.haveStock(barcode)) {
+        addNotification('Tovar už nie je. Nájdi kubika.', 'error');
+        return;
+      }
       action(barcode);
       this.setState({barcode: ''});
     } else {
@@ -48,4 +64,13 @@ BarcodeInput.propTypes = {
   placeholder: PropTypes.string,
 };
 
-export default BarcodeInput;
+export default connect(
+  (state) => ({
+    cart: get(state, [...PATH_SHOP, 'cart'], {}),
+    products: get(state, [...PATH_SHOP, 'products', 'data']),
+  }),
+  (dispatch) => bindActionCreators({
+    addNotification,
+  }, dispatch),
+  mergeProps
+)(BarcodeInput);
