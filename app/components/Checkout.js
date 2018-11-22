@@ -56,7 +56,7 @@ class Checkout extends Component {
       addNotification('Neplatná/chybná zamietnutá.', 'error');
       return;
     }
-    if (this.willOverdraft()) {
+    if (purchaseMethod === 'credit' && this.willOverdraft()) {
       addNotification('Nemáš dosť kreditu na tento nákup.', 'error');
       return;
     }

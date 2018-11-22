@@ -41,8 +41,8 @@ class AddCredit extends Component {
     }
 
     const balanceMessage = balance > 0
-      ? `Čiastka ${balance} úspešne pridaná uživateľovi ${user.name}`
-      : `Čiastka ${balance} úspešne odobratá od uživateľa ${user.name}`;
+      ? `Čiastka ${balance} úspešne pridaná uživateľovi ${user.username}`
+      : `Čiastka ${balance} úspešne odobratá od uživateľa ${user.username}`;
 
     axios
       .post('/credit', {userId, credit: balance.trim()})
