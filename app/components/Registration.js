@@ -61,60 +61,65 @@ class Registration extends Component {
     const {username, balance, isic} = this.state;
 
     return (
-      <Panel header={<h1><b>Registrácia</b></h1>}>
-        <form onSubmit={this.handleSubmit}>
-          <Row>
-            <Col xs={4}>
-              <ControlLabel>Username</ControlLabel>
-              <FormControl
-                type={'text'}
-                name={'username'}
-                value={username}
-                placeholder={'Username'}
-                onChange={
-                  ({target: {value}}) => this.setState({username: value})
-                }
-              />
-            </Col>
-            <Col xs={4}>
-              <ControlLabel>Počiatočný kredit</ControlLabel>
-              <FormControl
-                type={'text'}
-                name={'balance'}
-                value={balance}
-                placeholder={'Počiatočný kredit'}
-                onChange={
-                  ({target: {value}}) => this.setState({balance: value})
-                }
-              />
-            </Col>
-            <Col xs={4}>
-              <Button
-                bsStyle={'success'}
-                type={'submit'}
-                style={{marginTop: '25px'}}
-                disabled={!(username && /^[0-9]*\.?[0-9]{1,2}$/.test(balance))}
-              >
-                Registrácia
-              </Button>
-            </Col>
-          </Row>
-          <Row>
-            <Col xs={4}>
-              <ControlLabel>Počiatočný kredit</ControlLabel>
-              <FormControl
-                type={'text'}
-                name={'isic'}
-                value={isic}
-                placeholder={'Číslo čipu ISICu'}
-                onChange={
-                  ({target: {value}}) => this.setState({isic: value})
-                }
-              />
-            </Col>
-            <Col xs={8} />
-          </Row>
-        </form>
+      <Panel>
+        <Panel.Heading>
+          <b>Registrácia</b>
+        </Panel.Heading>
+        <Panel.Body>
+          <form onSubmit={this.handleSubmit}>
+            <Row>
+              <Col xs={4}>
+                <ControlLabel>Username</ControlLabel>
+                <FormControl
+                  type={'text'}
+                  name={'username'}
+                  value={username}
+                  placeholder={'Username'}
+                  onChange={
+                    ({target: {value}}) => this.setState({username: value})
+                  }
+                />
+              </Col>
+              <Col xs={4}>
+                <ControlLabel>Počiatočný kredit</ControlLabel>
+                <FormControl
+                  type={'text'}
+                  name={'balance'}
+                  value={balance}
+                  placeholder={'Počiatočný kredit'}
+                  onChange={
+                    ({target: {value}}) => this.setState({balance: value})
+                  }
+                />
+              </Col>
+              <Col xs={4}>
+                <Button
+                  bsStyle={'success'}
+                  type={'submit'}
+                  style={{marginTop: '25px'}}
+                  disabled={!(username && /^[0-9]*\.?[0-9]{1,2}$/.test(balance))}
+                >
+                  Registrácia
+                </Button>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={4}>
+                <ControlLabel>Číslo čipu ISICu</ControlLabel>
+                <FormControl
+                  type={'text'}
+                  name={'isic'}
+                  value={isic}
+                  placeholder={'Číslo čipu ISICu'}
+                  onChange={
+                    ({target: {value}}) => this.setState({isic: value})
+                  }
+                />
+              </Col>
+              <Col xs={8} />
+            </Row>
+          </form>
+        </Panel.Body>
       </Panel>
     );
   }

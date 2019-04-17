@@ -2,6 +2,7 @@ const path = require('path');
 const webpack = require('webpack');
 const ExtractTextPlugin = require('extract-text-webpack-plugin');
 const config = require('./config');
+const version = require('./package.json').version;
 
 const devConfig = {
   devtool: 'source-map',
@@ -17,6 +18,12 @@ const devConfig = {
   plugins: [
     new webpack.HotModuleReplacementPlugin(),
     new ExtractTextPlugin('style.css', {allChunks: true}),
+    new webpack.DefinePlugin({
+      'process.env': {
+        NODE_ENV: JSON.stringify('development'),
+        VERSION: JSON.stringify(version),
+      },
+    }),
   ],
   module: {
     loaders: [
@@ -50,6 +57,7 @@ const productionConfig = {
     new webpack.DefinePlugin({
       'process.env': {
         NODE_ENV: JSON.stringify('production'),
+        VERSION: JSON.stringify(version),
       },
     }),
     new webpack.optimize.UglifyJsPlugin(),

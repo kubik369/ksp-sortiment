@@ -32,36 +32,6 @@ class Stats extends Component {
     return -this.compareUserBalanceAscending(a, b);
   }
 
-  renderDebtors = () => {
-    const debtors = Object.values(this.props.users)
-      .filter(({balance}) => balance < 0)
-      .sort(this.compareUserBalanceAscending)
-      .slice(0, 10)
-      .map(({username, balance}, i) => (
-        <tr key={i}>
-          <td key="username">{username}</td>
-          <td key="balance">{balance.toFixed(2)}</td>
-        </tr>
-      ));
-
-    return (
-      <div>
-        <h2>Dlžníci</h2>
-        <Table striped bordered condensed hover>
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>Dlh</th>
-            </tr>
-          </thead>
-          <tbody>
-            {debtors}
-          </tbody>
-        </Table>
-      </div>
-    );
-  }
-
   moneyStatus = () => {
     const totalProductValue = Object.values(this.props.products)
       .reduce((total, product) => total + product.price * product.stock, 0);
@@ -95,8 +65,6 @@ class Stats extends Component {
         </p>
         <span><b>Hodnota tovaru</b></span>
         <p>{totalProductValue.toFixed(2)}</p>
-        <span><b>Celkový dlh</b></span>
-        <p>{totalDebt.toFixed(2)}</p>
         <span><b>Celkový kredit</b></span>
         <p>{totalCredit.toFixed(2)}</p>
       </div>
@@ -137,16 +105,18 @@ class Stats extends Component {
     return (
       <Grid fluid style={{marginTop: '20px'}}>
         <Row>
-          <Panel header={'Štatistiky'}>
-            <Col xs={4}>
-              {this.renderDebtors()}
-            </Col>
-            <Col xs={4}>
-              {this.renderCreditors()}
-            </Col>
-            <Col xs={4}>
-              {this.moneyStatus()}
-            </Col>
+          <Panel>
+            <Panel.Heading>
+              Štatistiky
+            </Panel.Heading>
+            <Panel.Body>
+              <Col xs={6}>
+                {this.renderCreditors()}
+              </Col>
+              <Col xs={6}>
+                {this.moneyStatus()}
+              </Col>
+            </Panel.Body>
           </Panel>
         </Row>
       </Grid>

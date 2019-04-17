@@ -7,3 +7,7 @@ html {
     padding: 0;
     overflow: hidden;
 }
+
+:global(.panel-body) {
+    padding: 10px;
+}

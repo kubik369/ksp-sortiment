@@ -1,6 +1,6 @@
 {
   "name": "ksp-sortiment",
-  "version": "1.0.0",
+  "version": "1.1",
   "description": "Sortiment for the KSP T2 room",
   "scripts": {
     "build": "babel server -d build -s",
@@ -58,7 +58,7 @@
     "postcss-loader": "^1.2.0",
     "prop-types": "^15.6.0",
     "react": "^15.4.1",
-    "react-bootstrap": "^0.30.10",
+    "react-bootstrap": "0.32.4",
     "react-css-modules": "^4.1.0",
     "react-dom": "^15.4.1",
     "react-list": "^0.8.0",

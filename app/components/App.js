@@ -37,10 +37,10 @@ class App extends Component {
         <Notifications />
         <Grid fluid>
           <Row>
-            <Col xs={2} style={{padding: '0'}}>
+            <Col xs={3} style={{padding: '0'}}>
               <Sidebar />
             </Col>
-            <Col xs={10} style={{padding: '0'}}>
+            <Col xs={9} style={{padding: '0'}}>
               {allPages[currentPage]}
             </Col>
           </Row>

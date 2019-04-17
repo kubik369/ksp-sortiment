@@ -164,38 +164,43 @@ class AddStock extends Component {
       : `${parseFloat(price).toFixed(2)}€`;
 
     return (
-      <Panel header={<h1><b>Doplniť tovar</b></h1>}>
-        <Row>
-          <form onSubmit={this.addStock}>
-            <Col xs={3}>
-              {this.renderBarcodeAndNameInput()}
-            </Col>
-            <Col xs={5}>
-              {this.renderAmountAndPriceForm()}
-            </Col>
-            <Col xs={4}>
-              <p><b>Pôvodná cena: </b>{oldPrice}</p>
-              <p><b>Nová cena: </b>{newPrice}</p>
-              <FormControl
-                type={'submit'}
-                value={'Add stock'}
-                disabled={!this.isFormValid()}
-              />
-            </Col>
-          </form>
-        </Row>
-        <Row>
-          <Col xs={3}>
-            <form onSubmit={this.renameProduct}>
-              <FormControl
-                type={'submit'}
-                value={'Premenovať'}
-                disabled={!this.isRenameValid()}
-              />
+      <Panel>
+        <Panel.Heading>
+          <b>Doplniť tovar</b>
+        </Panel.Heading>
+        <Panel.Body>
+          <Row>
+            <form onSubmit={this.addStock}>
+              <Col xs={3}>
+                {this.renderBarcodeAndNameInput()}
+              </Col>
+              <Col xs={5}>
+                {this.renderAmountAndPriceForm()}
+              </Col>
+              <Col xs={4}>
+                <p><b>Pôvodná cena: </b>{oldPrice}</p>
+                <p><b>Nová cena: </b>{newPrice}</p>
+                <FormControl
+                  type={'submit'}
+                  value={'Add stock'}
+                  disabled={!this.isFormValid()}
+                />
+              </Col>
             </form>
-          </Col>
-          <Col xs={9} />
-        </Row>
+          </Row>
+          <Row>
+            <Col xs={3}>
+              <form onSubmit={this.renameProduct}>
+                <FormControl
+                  type={'submit'}
+                  value={'Premenovať'}
+                  disabled={!this.isRenameValid()}
+                />
+              </form>
+            </Col>
+            <Col xs={9} />
+          </Row>
+        </Panel.Body>
       </Panel>
     );
   }
