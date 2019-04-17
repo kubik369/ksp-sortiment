@@ -9,7 +9,6 @@ import {PATH_SHOP} from '../state/shop';
 import {mergeProps} from '../utils';
 import BarcodeInput from './BarcodeInput';
 import Product from './Product';
-import Checkout from './Checkout';
 
 class Sortiment extends Component {
   componentWillMount = () => {
@@ -31,7 +30,7 @@ class Sortiment extends Component {
   render() {
     const products = Object.keys(this.props.products).map(
       (key) => (this.props.products[key].stock > 0) && (
-        <Col xs={3} key={key} style={{padding: 0}}>
+        <Col xs={2} key={key} style={{padding: 0}}>
           <Product barcode={key} />
         </Col>
       )
@@ -40,20 +39,20 @@ class Sortiment extends Component {
     return (
       <Grid fluid>
         <Row>
-          <Col xs={9} style={{
+          <Col xs={12} style={{
             maxHeight: '560px',
             overflowY: 'auto',
             marginTop: '20px',
             marginBottom: '20px',
           }}>
-            <Panel
-              footer={this.renderBarcodeInput()}
-            >
-              {products}
+            <Panel>
+              <Panel.Heading>
+                {this.renderBarcodeInput()}
+              </Panel.Heading>
+              <Panel.Body>
+                {products}
+              </Panel.Body>
             </Panel>
-          </Col>
-          <Col xs={3} style={{padding: 0, paddingRight: '10px'}}>
-            <Checkout />
           </Col>
         </Row>
       </Grid>

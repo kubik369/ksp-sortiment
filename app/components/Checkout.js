@@ -79,65 +79,77 @@ class Checkout extends Component {
       });
   }
 
-  renderCart = () => {
+  renderCartItem = (barcode) => {
     const {cart, products, removeFromCart} = this.props;
-    return Object.keys(cart).map(
-      (id) => (cart[id] > 0) &&
-        (<div styleName={'cartItem'} key={id}>
+
+    return (cart[barcode] > 0) && (
+      <div styleName={'cartItem'} className="container-fluid" key={barcode}>
+        <Row>
           <Row>
-            <Row>
-              <Col xs={12}>
-                <b><i>{products[id].name}</i></b>
-              </Col>
-            </Row>
-            <Row styleName="cartItemBottomRow">
-              <Col xs={4} style={{padding: 0}}>
-                {`${cart[id]} ks`}
-              </Col>
-              <Col xs={4} style={{padding: 0}}>
-                {`${(cart[id] * products[id].price).toFixed(2)} €`}
-              </Col>
-              <Col xs={4}>
-                <Button onClick={() => cart[id] > 0 && removeFromCart(id)}>
-                  <Glyphicon glyph={'remove'} />
-                </Button>
-              </Col>
-            </Row>
+            <Col xs={5}>
+              <b><i>{products[barcode].name}</i></b>
+            </Col>
+            <Col xs={3}>
+              <Row>
+                <Row>
+                  {`${cart[barcode]} ks`}
+                </Row>
+                <Row>
+                  {`${(cart[barcode] * products[barcode].price).toFixed(2)} €`}
+                </Row>
+              </Row>
+            </Col>
+            <Col xs={4}>
+              <Button onClick={() => cart[barcode] > 0 && removeFromCart(barcode)}>
+                <Glyphicon glyph={'remove'} />
+              </Button>
+            </Col>
           </Row>
-        </div>)
+        </Row>
+      </div>
     );
   }
 
-  renderCheckout = () => {
-    const {processingPurchase, cart, products} = this.props;
-
+  renderCart = () => {
+    const {cart, products} = this.props;
     const total = Object.values(products)
       .reduce((total, {barcode, price}) => (
         total + price * (cart[barcode] || 0)
       ), 0);
+    const cartItems = Object.keys(cart).map(this.renderCartItem);
 
     return (
-      <Panel header={<h2><b>Checkout</b></h2>} style={{padding: 0}}>
-        <Row>
-          <Col xs={12}>Total: {total.toFixed(2)}€</Col>
-        </Row>
-        <Row>
-          <Col xs={12}>
-            <ButtonGroup justified>
-              <ButtonGroup>
-                <Button bsStyle={'primary'} onClick={() => this.checkout(true)}>
-                  {processingPurchase.credit ? <Spinner /> : 'Kredit'}
-                </Button>
-              </ButtonGroup>
-              <ButtonGroup>
-                <Button bsStyle={'primary'} onClick={() => this.checkout()}>
-                  {processingPurchase.cash ? <Spinner /> : 'Cash'}
-                </Button>
-              </ButtonGroup>
-            </ButtonGroup>
-          </Col>
-        </Row>
+      <Panel style={{padding: 0}} styleName="cart">
+        <Panel.Heading>
+          <b>Košík</b> - Total: {total.toFixed(2)}€
+        </Panel.Heading>
+        <Panel.Body styleName="cartContents">
+          {cartItems}
+        </Panel.Body>
       </Panel>
+    );
+  }
+
+  renderCheckout = () => {
+    const {processingPurchase} = this.props;
+
+    return (
+      <Row styleName="checkoutButtons">
+        <Col xs={12}>
+          <ButtonGroup justified>
+            <ButtonGroup>
+              <Button bsStyle={'primary'} onClick={() => this.checkout(true)}>
+                {processingPurchase.credit ? <Spinner /> : 'Kredit'}
+              </Button>
+            </ButtonGroup>
+            <ButtonGroup>
+              <Button bsStyle={'primary'} onClick={() => this.checkout()}>
+                {processingPurchase.cash ? <Spinner /> : 'Cash'}
+              </Button>
+            </ButtonGroup>
+          </ButtonGroup>
+        </Col>
+      </Row>
     );
   }
 
@@ -152,15 +164,10 @@ class Checkout extends Component {
           fluid
           style={{
             padding: '0',
-            paddingTop: '20px',
             maxHeight: '600px',
           }}>
+          {this.renderCart()}
           {this.renderCheckout()}
-          <Panel header={<h2><b>Košík</b></h2>} style={{padding: 0}}>
-            <div styleName={'cart'}>
-              {this.renderCart()}
-            </div>
-          </Panel>
         </Grid>
       </div>
     );

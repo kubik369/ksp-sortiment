@@ -20,7 +20,6 @@ export class BarcodeInput extends Component {
   haveStock = (barcode) => {
     const {products, cart} = this.props;
     const cartAmount = get(cart, [barcode], 0);
-    console.log(cartAmount);
     return barcode && cartAmount + 1 <= products[barcode].stock;
   }
 
@@ -50,6 +49,7 @@ export class BarcodeInput extends Component {
             onChange={this.handleOnChange}
             placeholder={this.props.placeholder}
             autoFocus
+            style={{marginBottom: 0}}
           />
           <InputGroup.Button>
             <Button><Glyphicon glyph="remove" /></Button>

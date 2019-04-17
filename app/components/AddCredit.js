@@ -78,38 +78,43 @@ class AddCredit extends Component {
 
   renderAddCreditForm = () => {
     return (
-      <Panel header={<h1><b>Pridať kredit / vybrať hotovosť</b></h1>}>
-        <form onSubmit={this.addCredit}>
-          <Row>
-            <Col xs={3}>
-              <FormControl
-                type={'text'}
-                name={'credit'}
-                placeholder={'Kredit'}
-                value={this.state.credit}
-                onChange={({target: {value}}) => this.setState({credit: value})}
-              />
-            </Col>
-            <Col xs={4}>
-              <Button
-                bsStyle={'success'}
-                type={'submit'}
-                disabled={!/^[-]?[0-9]*\.?[0-9]{1,2}$/.test(this.state.credit)}
-              >
-                Pridaj kredit / vyber hotovosť
-              </Button>
-            </Col>
-            <Col xs={5}>
-              <p>Ak chceš vybrať hotovosť zo svojho účtu, napíš zápornú hodnotu.</p>
-            </Col>
-          </Row>
-          <Row>
-            <Col xs={5}>
-              {this.renderNumpad()}
-            </Col>
-            <Col xs={7} />
-          </Row>
-        </form>
+      <Panel>
+        <Panel.Heading>
+          <b>Pridať kredit / vybrať hotovosť</b>
+        </Panel.Heading>
+        <Panel.Body>
+          <form onSubmit={this.addCredit}>
+            <Row>
+              <Col xs={3}>
+                <FormControl
+                  type={'text'}
+                  name={'credit'}
+                  placeholder={'Kredit'}
+                  value={this.state.credit}
+                  onChange={({target: {value}}) => this.setState({credit: value})}
+                />
+              </Col>
+              <Col xs={4}>
+                <Button
+                  bsStyle={'success'}
+                  type={'submit'}
+                  disabled={!/^[-]?[0-9]*\.?[0-9]{1,2}$/.test(this.state.credit)}
+                >
+                  Pridaj kredit / vyber hotovosť
+                </Button>
+              </Col>
+              <Col xs={5}>
+                <p>Ak chceš vybrať hotovosť zo svojho účtu, napíš zápornú hodnotu.</p>
+              </Col>
+            </Row>
+            <Row>
+              <Col xs={5}>
+                {this.renderNumpad()}
+              </Col>
+              <Col xs={7} />
+            </Row>
+          </form>
+        </Panel.Body>
       </Panel>
     );
   }

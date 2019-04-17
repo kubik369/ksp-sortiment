@@ -8,30 +8,37 @@ import {pages} from '../constants/enums/pages';
 import {goToPage} from '../actions/shop';
 import {logout} from '../actions/login';
 import {PATH_LOGIN} from '../state/login';
+import {PATH_SHOP} from '../state/shop';
 import {mergeProps} from '../utils';
 import Login from './Login';
+import Checkout from './Checkout';
 
 import './Sidebar.css';
 
 class Sidebar extends Component {
 
   renderLoggedIn = () => {
-    const {actions: {goToPage, logout}} = this.props;
+    const {username, balance, actions: {goToPage, logout}} = this.props;
 
     return (
       <div>
-        <Button bsStyle={'primary'} onClick={() => goToPage(pages.store)} block>
-          Obchod
-        </Button>
-        <Button styleName={'credit'} bsStyle={'primary'} onClick={() => goToPage(pages.addCredit)} block>
-          Nabi kredit <br />vyber hotovosť
-        </Button>
-        <Button bsStyle={'primary'} onClick={() => goToPage(pages.addStock)} block>
-          Pridaj tovar
-        </Button>
-        <Button bsStyle={'danger'} onClick={logout} block>
-          Odhlásenie
-        </Button>
+        <p>
+          <b>{username}</b> - {balance.toFixed(2)}€
+        </p>
+        <div>
+          <Button bsStyle={'primary'} onClick={() => goToPage(pages.store)} block>
+            Obchod
+          </Button>
+          <Button styleName={'credit'} bsStyle={'primary'} onClick={() => goToPage(pages.addCredit)} block>
+            Nabi kredit <br />vyber hotovosť
+          </Button>
+          <Button bsStyle={'primary'} onClick={() => goToPage(pages.addStock)} block>
+            Pridaj tovar
+          </Button>
+          <Button bsStyle={'danger'} onClick={logout} block>
+            Odhlásenie
+          </Button>
+        </div>
       </div>
     );
   }
@@ -61,9 +68,15 @@ class Sidebar extends Component {
       <Grid fluid style={{marginTop: '20px', padding: 0, paddingLeft: '10px'}}>
         <Row>
           <Col xs={12}>
-            <Panel header={<h1><b>Sortiment</b></h1>} style={{padding: '0'}}>
-              {loggedIn ? this.renderLoggedIn() : this.renderLoggedOut()}
-              <Login />
+            <Panel style={{padding: '0'}}>
+              <Panel.Heading styleName="versionTitle">
+                <b>Sortiment v{process.env.VERSION}</b>
+              </Panel.Heading>
+              <Panel.Body>
+                {loggedIn ? this.renderLoggedIn() : this.renderLoggedOut()}
+                <Login />
+                <Checkout />
+              </Panel.Body>
             </Panel>
           </Col>
         </Row>
@@ -73,9 +86,19 @@ class Sidebar extends Component {
 }
 
 export default connect(
-  (state) => ({
-    loggedIn: get(state, [...PATH_LOGIN, 'loggedIn']),
-  }),
+  (state) => {
+    const {balance, username} = get(
+      state,
+      [...PATH_SHOP, 'users', 'data', get(state, [...PATH_LOGIN, 'userId'])],
+      {}
+    );
+
+    return {
+      username,
+      balance,
+      loggedIn: get(state, [...PATH_LOGIN, 'loggedIn']),
+    };
+  },
   (dispatch) => bindActionCreators({
     goToPage,
     logout,

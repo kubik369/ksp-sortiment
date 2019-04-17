@@ -46,62 +46,45 @@ class Login extends Component {
 
   loginWithISIC = (isic) => this.props.actions.login(this.isBarcodeISIC(isic))
 
-  render() {
-    const {loggedIn, search, username, balance, fetching,
-      actions: {searchUsername}} = this.props;
+  renderloginForm = () => {
+    const {fetching, search, actions: {searchUsername}} = this.props;
 
-    return (<div styleName={'login'}>
-      {!loggedIn &&
-        <form>
-          <BarcodeInput
-            isBarcodeValid={this.isBarcodeISIC}
-            action={this.loginWithISIC}
-            placeholder={'ISIC'}
-          />
-          <FormControl
-            type={'text'}
-            name={'username'}
-            value={search}
-            placeholder={'Username'}
-            autoComplete={'off'}
-            onChange={(e) => searchUsername(e.target.value)}
-          />
-          {fetching ? <p>Loading</p> : this.filterUsers()}
-        </form>
-      }
-      {loggedIn &&
-        <div styleName={'userInfo'}>
-          <div>
-            <ControlLabel>Prihlásený</ControlLabel>
-            <p>{username}</p>
-          </div>
-          <div>
-            <ControlLabel>Zostatok na účte</ControlLabel>
-            <p>{balance.toFixed(2)}€</p>
-          </div>
-        </div>
-      }
-    </div>);
+    return (
+      <form>
+        <BarcodeInput
+          isBarcodeValid={this.isBarcodeISIC}
+          action={this.loginWithISIC}
+          placeholder={'ISIC'}
+        />
+        <FormControl
+          type={'text'}
+          name={'username'}
+          value={search}
+          placeholder={'Username'}
+          autoComplete={'off'}
+          onChange={(e) => searchUsername(e.target.value)}
+        />
+        {fetching ? <p>Loading</p> : this.filterUsers()}
+      </form>
+    )
+  }
+
+  render() {
+    return (
+      <div styleName={'login'}>
+        {!this.props.loggedIn && this.renderloginForm()}
+      </div>
+    );
   }
 }
 
 export default connect(
-  (state) => {
-    const {balance, username} = get(
-      state,
-      [...PATH_SHOP, 'users', 'data', get(state, [...PATH_LOGIN, 'userId'])],
-      {}
-    );
-
-    return {
-      users: get(state, [...PATH_SHOP, 'users', 'data']),
-      loggedIn: get(state, [...PATH_LOGIN, 'loggedIn']),
-      search: get(state, [...PATH_LOGIN, 'search']),
-      username,
-      balance,
-      fetching: get(state, [...PATH_SHOP, 'users', 'fetching']),
-    };
-  },
+  (state) => ({
+    users: get(state, [...PATH_SHOP, 'users', 'data']),
+    loggedIn: get(state, [...PATH_LOGIN, 'loggedIn']),
+    search: get(state, [...PATH_LOGIN, 'search']),
+    fetching: get(state, [...PATH_SHOP, 'users', 'fetching']),
+  }),
   (dispatch) => bindActionCreators(
     {searchUsername, login, loadUsers},
     dispatch,

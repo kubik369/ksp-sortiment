@@ -3,30 +3,26 @@
 }
 
 .cart {
-    height: 350px;
+    height: 225px;
+}
+
+.cartContents {
+    max-height: 175px;
     overflow-y: auto;
     overflow-x: hidden;
 }
 
 .cartItem {
-    padding: 5px;
     margin-bottom: 3px;
-    border: 2px solid black;
-    border-radius: 10px;
-    /*line-height: 30px;*/
     vertical-align: middle;
     text-align: center;
 }
 
-.cartItemBottomRow {
-    /*padding-top: 10px;*/
-    display: flex;
-    justify-content: center; /* align horizontal */
-    align-items: center; /* align vertical */
-    padding-left: 20px;
-    padding-right: 30px;
-}
-
 h2 {
     font-size: 1.5em;
+}
+
+.checkoutButtons {
+    /*padding-top: 5px;*/
+    padding-bottom: 5px;
 }
