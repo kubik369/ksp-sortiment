@@ -1,6 +1,6 @@
 {
   "name": "ksp-sortiment",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "Sortiment for the KSP T2 room",
   "scripts": {
     "build": "babel server -d build -s",
@@ -42,7 +42,7 @@
   "dependencies": {
     "autoprefixer": "^6.5.3",
     "axios": "^0.15.3",
-    "bluebird": "^3.4.7",
+    "bluebird": "@3.4.7",
     "body-parser": "^1.15.2",
     "css-loader": "^0.26.1",
     "diacritics": "^1.3.0",

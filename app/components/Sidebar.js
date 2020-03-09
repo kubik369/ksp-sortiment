@@ -23,7 +23,10 @@ class Sidebar extends Component {
     return (
       <div>
         <p>
-          <b>{username}</b> - {balance.toFixed(2)}€
+          <b>{username}</b>
+        </p>
+        <p>
+          {balance.toFixed(2)}€
         </p>
         <div>
           <Button bsStyle={'primary'} onClick={() => goToPage(pages.store)} block>

@@ -29,7 +29,7 @@ export class BarcodeInput extends Component {
 
     if (isBarcodeValid(barcode)) {
       if (!this.haveStock(barcode)) {
-        addNotification('Tovar už nie je. Nájdi kubika.', 'error');
+        addNotification('Niekto asi kúpil zlú príchuť, pozri a kúp tú čo už fyzicky nie je.', 'error');
         return;
       }
       action(barcode);
